@@ -23,6 +23,6 @@ source("./00_MD2S.R")
 library(parallel)
 nsims <- nperm <- nboot <- 200
 # Be aware! This takes a longgggg time to run on your laptop 
-source("./01_Main_Results/Figure_3/01_Create_Data_Panel_A.R")
+source("./01_Create_Data_Panel_A.R")
 ## ---------------------------------------------------------------------------------------------------
 
