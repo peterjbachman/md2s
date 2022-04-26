@@ -1,0 +1,17 @@
+Just a testing file for git 
+Use git branch to create a new branch.
+For example:
+$ git branch Cecilia
+
+Then use git checkout to work on that branch 
+$ git checkout Cecilia 
+
+A shorthand for the two commands above :
+$ git checkout -b Cecilia
+
+
+If you run git branch, it tells you which branch you are on 
+$ git branch 
+
+Please make sure to commit ONLY to your own branch!
+Do NOT make commits to the main branch without letting the group know beforehand. Thank you! 
