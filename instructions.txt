@@ -1,0 +1,19 @@
+The tasks:
+
+1. Create the help files for the MD2S function
+
+2. Create a permutation test based for the results of MD2S, when fixing the number of dimensions to d. Goal: we want to distinguish how many dimensions out of d are different from noise. Sample code for this: Figure_03/01_Create_Data_Panel_A.R (look for the loop that does the shuffling and compares the observed loadings to the loadings that come from noise)
+
+3. Create a help file for the function in 2
+
+4. We will create test code to check that given the sample data for the R-package, the functions in 1 and 2 do not break when modified
+
+5. We will take inspiration in the github repo for the following package for our github repo: 
+https://github.com/kosukeimai/fastLink
+
+
+Link to trello board: 
+
+https://trello.com/b/q7v0jPIL/r-final-teds-project
+
+
