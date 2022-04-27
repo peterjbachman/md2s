@@ -303,58 +303,83 @@ MD2S_inner <- function(X0,y0,X.c.0=NULL,X.X.0=NULL, X.y.0=NULL,init0="svd",sim0=
 
 # SECTION 3
 
-check.cor<-function(z.run){
-  wX<-as.vector(((X1)%*%t(X1))%*%z.run)
-  wy<-as.vector(((y1)%*%t(y1))%*%z.run)
-  cov(wX,wy)
+## Checks the correlation and outputs it?
+## TODO Add inputs for x1 and y1 for my sanity
+check.cor <- function(z.run) {
+  wX <- as.vector(((X1) %*% t(X1)) %*% z.run)
+  wy <- as.vector(((y1) %*% t(y1)) %*% z.run)
+  cov(wX, wy)
 }
 
-make.int<-function(X){
-  int1<-rep(1,nrow(X))%*%t(colMeans(X))
-  int2<-rowMeans(X)%*%t(rep(1,ncol(X)))
-  int1+int2-mean(int1+int2)+mean(X)
+## Creates integers, but based on what?
+make.int <- function(X) {
+  int1 <- rep(1, nrow(X)) %*% t(colMeans(X))
+  int2 <- rowMeans(X) %*% t(rep(1, ncol(X)))
+  int1 + int2 - mean(int1 + int2) + mean(X)
 }
 
+## Create residuals faster?
+## TODO Add library MASS to package
+fastres <- function(x, z) {
+  z <- cbind(1, z)
+  # If there are fewer rows than columns
+  if (nrow(z) <= ncol(z)) fits <- z %*% MASS::ginv(t(z) %*% z) %*% (t(z) %*% x)
+  # If there are more columns than rows
+  if (nrow(z) > ncol(z)) fits <- z %*% (MASS::ginv(t(z) %*% z) %*% t(z) %*% x)
 
-fastres<-function(x,z){
-  z<-cbind(1,z)
-  if(nrow(z)<=ncol(z)) 	fits<-z%*%ginv(t(z)%*%z)%*%(t(z)%*%x)
-  if(nrow(z)>ncol(z)) 	fits<-z%*%(ginv(t(z)%*%z)%*%t(z)%*%x)
-
-  res<-x-fits
-  res-make.int(res)
+  # Create residuals
+  res <- x - fits
+  res - make.int(res)
 }
 
-
-sample.mat<-function(X){
-  apply(X,2,FUN=function(x) sample(x,length(x),replace=FALSE))
+## Creates a sample matrix?
+sample.mat <- function(X) {
+  apply(X, 2, FUN = function(x) sample(x, length(x), replace = FALSE))
 }
 
-tfidf=function(mat){
+## No clue yet
+tfidf <- function(mat) {
   tf <- mat
-  id=function(col){sum(!col==0)}
-  idf <- log(nrow(mat)/apply(mat, 2, id))
+
+  ## show the number of columns that don't equal 0?
+  id <- function(col) {
+    sum(!col == 0)
+  }
+
+  idf <- log(nrow(mat) / apply(mat, 2, id))
+
   tfidf <- mat
-  for(word in names(idf)){tfidf[,word] <- tf[,word] * idf[word]}
+
+  ## For every word
+  for (word in names(idf)) {
+    tfidf[, word] <- tf[, word] * idf[word]
+  }
   return(tfidf)
 }
-my.norm<-function(x) {x<-as.vector(x);x<-x-mean(x);(x/sum(x^2)^.5)}
 
-dubcent.impute<-function(X){
-  X<-as.matrix(X)
-  miss.mat<-is.na(X)
-  X[is.na(X)]<-.5
-  for(i in 1:10000){
-    Xlast<-X
-    X<-X-make.int(X)
-    X[miss.mat]<-0
-    if(sum(abs(Xlast-X))==0) break
+## Normalizing function?
+my.norm <- function(x) {
+  x <- as.vector(x)
+  x <- x - mean(x)
+  (x / sum(x^2)^.5)
+}
+
+## No clue yet
+dubcent.impute <- function(X) {
+  X <- as.matrix(X)
+  miss.mat <- is.na(X)
+  X[is.na(X)] <- .5
+  for (i in 1:10000) {
+    Xlast <- X
+    X <- X - make.int(X)
+    X[miss.mat] <- 0
+    if (sum(abs(Xlast - X)) == 0) break
   }
   X
 }
 
-
-make.norm<-function(x){
-  edf<-sapply(x,FUN=function(z) sum(x <=z))/(length(x)+1)
+## No clue yet
+make.norm <- function(x) {
+  edf <- sapply(x, FUN = function(z) sum(x <= z)) / (length(x) + 1)
   qnorm(edf)
 }
