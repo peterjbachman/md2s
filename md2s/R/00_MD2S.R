@@ -12,65 +12,136 @@ library(irlba)
 
 # SECTION 1 - wowsa this is gonna be fun! ::UpsideDownSmileyFaceEmoji::
 
-MD2S <- function( #List of arguments and descriptions below:
+MD2S <- function( # List of arguments and descriptions below:
   X, # N x K_1 dataset m = 1 of realized outcomes.
     # DESCRIPTION: first dataset of realized outcomes for `N` observations and
     #   `K_1` covariates. Note that `K_1` & `K_2` can differ.
     # EXAMPLE: roll-call votes for `N` legislators with `K_1` covariates.
+  
   y, # N x K_2 dataset m = 2 of realized outcomes.
     # DESCRIPTION: first dataset of realized outcomes for `N` observations and
     #   `K_2` covariates. Note that `K_1` & `K_2` can differ.
     # EXAMPLE: floor speech text for `N` legislators with `K_2` covariates.
-  X.s = NULL, # (???) user-provided covariates for estimating scaled locations (???)
-    # [DESCRIPTION NEEDED]
+  
+  X.s = NULL, # Optional covariates for estimating scaled locations in shared subspace.
+    # DESCRIPTION: dataset of covariates that explain observations' scaled 
+    #   locations in shared subspace.
+    # EXAMPLE: covariates that explain legislators' general ideological placements.
+  
+  X.X = NULL, # Optional covariates for estimating scaled locations in idiosyncratic subspace of X.
+    # DESCRIPTION: dataset of covariates that explain observations' scaled 
+    #   locations in idiosyncratic subspace of X.
+    # EXAMPLE: covariates that explain legislators' ideological placements as
+    #   determined by roll call votes.
+  
+  X.y = NULL, # Optional covariates for estimating scaled locations in idiosyncratic subspace of y.
+    # DESCRIPTION: dataset of covariates that explain observations' scaled 
+    #   locations in idiosyncratic subspace of y.
+    # EXAMPLE: covariates that explain legislators' ideological placements as
+    #   determined by floor speech text.
+  
+  init = "svd", # Initialize??? 
+    # NOTE: Default is SVD = Singular Value Decomposition of a matrix.
+    # NOTE: Function permits no other argument besides default "svd".
     # [VERIFICATION CHECK NEEDED]
-  X.X = NULL, # (???) user-provided covariates for estimating scaled locations (???)
-    # [DESCRIPTION NEEDED]
+  
+  dim = 1, # Number of fitted dimensions (from most- to least-explanatory).
+    # (???) Not entirely sure if this is correct interpretation, check (???)
     # [VERIFICATION CHECK NEEDED]
-  X.y = NULL, # (???) user-provided covariates for estimating scaled locations (???)
-    # [DESCRIPTION NEEDED]
+  
+  sim = FALSE, # `TRUE` if using simulated data (???)
+    # (???) May need to have "true" values for z.true, zX.true, zy.true in environment. (???)
+    # Perhaps this part should be removed given that z.true, zX.true, & zy.true 
+    #   are not created in the function, so users cant run `sim = TRUE` unless
+    #   they have objects named z.true, zX.true, zy.true in their local environment.
+    #   Alternatively, we could force users to provide true values if `sim = TRUE`.
     # [VERIFICATION CHECK NEEDED]
-  init = "svd", # 
-    # [DESCRIPTION NEEDED]
-    # [VERIFICATION CHECK NEEDED]
-  dim = 1, # 
-    # [DESCRIPTION NEEDED]
-    # [VERIFICATION CHECK NEEDED]
-  sim = FALSE, # 
-    # [DESCRIPTION NEEDED]
-    # [VERIFICATION CHECK NEEDED]
-  tol = 1e-6, # (??TOL = Tolerance Parameter??) 
-      # TOL = convergence tolerance parameter. 
+  
+  tol = 1e-6, # TOL = convergence tolerance parameter. 
       # DESCRIPTION: criteria for iteration termination. Iterations terminate
       #   if difference between current & prior iteration < `TOL` value.
-    # [VERIFICATION CHECK NEEDED]
+    # [VERIFICATION CHECK NEEDED] (though I'm pretty sure this is right)
+  
   BIC = FALSE # (??BIC = Bayesian Information Criterion??) 
-    # [DESCRIPTION NEEDED]
+    # Very unsure on this. This argument `BIC` apparently doesn't do anything
+    #   in the function besides appearing as an element in the `output` list.
     # [VERIFICATION CHECK NEEDED]
-) {
-  if(BIC==FALSE) bic.sort<-NULL
-  X.c<-X.s
-  n<-nrow(X)
-  ZX.mat<-Zy.mat<-Z.mat<-as.matrix(rep(1,n))
+  ) {
+    
+    # Sets `bic.sort` to `NULL` if the `BIC` argument equals `FALSE`, which sets the "bic" element of the `output` list to `NULL`
+    if(BIC==FALSE) bic.sort <- NULL
+    
+    # Renames optional covariates for explaining scaled locations in the shared subspace.
+    X.c <- X.s 
+    
+    # Sets `n` as the number of observations in X, the first dataset (m = 1) of realized outcomes.
+    n <- nrow(X)
+    
+    # Creates three `Z` column vectors of 1s with length = number of rows in X.
+    #   (???) Correspond to the shared (Z_S) & idiosyncratic (Z_{(M)}) subspaces.
+    #     (from paper): Z_S contains latent locations in the shared subspace in columns for each `dim` dimensions (in this case, 1).
+    #     (from paper): Z_{(M)} contains latent locations in the idiosyncratic subspace for `dim` latent dimensions (in this case, 1).
+    ZX.mat <- Zy.mat <- Z.mat <- as.matrix(rep(1,n))
 
-  wXs.mat<-wX.mat<-rep(1,ncol(X))
-  wys.mat<-wy.mat<-rep(1,ncol(y))
-  ZX.mat<-Zy.mat<-Z.mat<-as.matrix(rep(1,n))
-  proportionX<-lz<-lz.X<-lz.y<-NULL
-  X1<-X-make.int(X)
-  y1<-y-make.int(y)
-  for(i in 1:dim){
-    cat("----  Fitting Dimension ", i, "----  \n")
-    X1<-fastres(X1,cbind(Z.mat,ZX.mat));y1<-fastres(y1,cbind(Z.mat,Zy.mat))
-    X1<-t(fastres(t(X1),cbind(wX.mat,wXs.mat)))
-    y1<-t(fastres(t(y1),cbind(wy.mat,wys.mat)))
-    X1<-X1-make.int(X1)
-    y1<-y1-make.int(y1)
-    b0<-MD2S_inner(X0=X1,y0=y1,X.c.0=X.c,X.X.0=X.X, X.y.0=X.y,tol0=tol)#,burnin=0,gibbs=100,thin=1)
-    Z.mat<-cbind(Z.mat,b0$z)
-    Zy.mat<-cbind(Zy.mat,b0$z.y)
-    ZX.mat<-cbind(ZX.mat,b0$z.X)
-    wXs.mat<-cbind(wXs.mat,my.norm(t(b0$z%*%X1)))
+    
+    # Creates two (row?) vectors of 1s with length = number of columns in X.
+    #   (from paper): W_{(M)} is matrix of shared factors for the shares subspace for the dataset Y_{(M)}.
+    wXs.mat <- wX.mat <- rep(1,ncol(X))
+    
+    # Creates two (row?) vectors of 1s with length = number of columns in y.
+    #   (from paper): W_{(M)} is matrix of shared factors for the shares ubspace for the dataset Y_{(M)}.
+    wys.mat <- wy.mat <- rep(1, ncol(y))
+    
+    # REPEAT of third to last line of code.
+    #   Delete unnecessary repeat?
+    ZX.mat <- Zy.mat <- Z.mat <- as.matrix(rep(1, n))
+    
+    # Creates `NULL` objects (??for later use??).
+    #   Potential purpose: proportionX may be intended to measure how much larger the `X` dataset is than the `y` dataset. It does nothing here, though.
+    proportionX <- lz <- lz.X <- lz.y <- NULL
+    
+    # (???) UNEXPLAINED! (???)
+    # BACKGROUND: the `make.int` function is defined below. 
+    #   We aren't sure what it does, but it apparently creates a matrix that's 
+    #   almost exactly the same as the original with miniscule differences. 
+    #   `X1` and `y1` record these miniscule differences between `X`/`y` and `make.int(X)`/`make.int(y)`.
+    X1 <- X - make.int(X)
+    y1 <- y - make.int(y)
+    
+    #
+    for(i in 1:dim){
+      
+      # Concatenates and prints "Fitting dimension `i`" for each `i`.
+      cat("----  Fitting Dimension ", i, "----  \n")
+      
+      # `fastres` function defined below. It apparently creates residuals.
+      X1 <- fastres(
+        x = X1, 
+        z = cbind(
+          Z.mat, 
+          ZX.mat
+        )
+      )
+      y1 <- fastres(y1, cbind(Z.mat, Zy.mat))
+      
+      # 
+      X1<-t(fastres(t(X1),cbind(wX.mat,wXs.mat)))
+      
+      # 
+      y1<-t(fastres(t(y1),cbind(wy.mat,wys.mat)))
+      
+      # 
+      X1<-X1-make.int(X1)
+      
+      # 
+      y1<-y1-make.int(y1)
+      
+      # 
+      b0<-MD2S_inner(X0=X1,y0=y1,X.c.0=X.c,X.X.0=X.X, X.y.0=X.y,tol0=tol)#,burnin=0,gibbs=100,thin=1)
+      Z.mat<-cbind(Z.mat,b0$z)
+      Zy.mat<-cbind(Zy.mat,b0$z.y)
+      ZX.mat<-cbind(ZX.mat,b0$z.X)
+      wXs.mat<-cbind(wXs.mat,my.norm(t(b0$z%*%X1)))
     wys.mat<-cbind(wys.mat,my.norm(t(b0$z%*%y1)))
     wX.mat<-cbind(wX.mat,my.norm(t(b0$z.X%*%X1)))
     wy.mat<-cbind(wy.mat,my.norm(t(b0$z.y%*%y1)))
@@ -78,31 +149,31 @@ MD2S <- function( #List of arguments and descriptions below:
 
     if(nrow(X1)<max(ncol(X1),ncol(y1))){
       lz[i]<-t(b0$z)%*%(X1%*%t(X1))%*%(y1%*%t(y1))%*%b0$z
-    } else {
-      lz[i]<-((t(b0$z)%*%X1)%*%t(X1))%*%(y1%*%(t(y1)%*%b0$z))
+      } else {
+        lz[i]<-((t(b0$z)%*%X1)%*%t(X1))%*%(y1%*%(t(y1)%*%b0$z))
+      }
+      lz.X[i]<-sum((t(X1)%*%b0$z.X)^2)
+      lz.y[i]<-sum((t(y1)%*%b0$z.y)^2)
     }
-    lz.X[i]<-sum((t(X1)%*%b0$z.X)^2)
-    lz.y[i]<-sum((t(y1)%*%b0$z.y)^2)
-  }
 
-  Z.mat<-as.matrix(Z.mat[,apply(Z.mat,2,sd)>0])
-  Zy.mat<-as.matrix(Zy.mat[,apply(Zy.mat,2,sd)>0])
-  ZX.mat<-as.matrix(ZX.mat[,apply(ZX.mat,2,sd)>0])
-  wX.mat<-as.matrix(wX.mat[,apply(wX.mat,2,sd)>0])
-  wy.mat<-as.matrix(wy.mat[,apply(wy.mat,2,sd)>0])
-  wXs.mat<-as.matrix(wXs.mat[,apply(wXs.mat,2,sd)>0])
-  wys.mat<-as.matrix(wys.mat[,apply(wys.mat,2,sd)>0])
+    Z.mat<-as.matrix(Z.mat[,apply(Z.mat,2,sd)>0])
+    Zy.mat<-as.matrix(Zy.mat[,apply(Zy.mat,2,sd)>0])
+    ZX.mat<-as.matrix(ZX.mat[,apply(ZX.mat,2,sd)>0])
+    wX.mat<-as.matrix(wX.mat[,apply(wX.mat,2,sd)>0])
+    wy.mat<-as.matrix(wy.mat[,apply(wy.mat,2,sd)>0])
+    wXs.mat<-as.matrix(wXs.mat[,apply(wXs.mat,2,sd)>0])
+    wys.mat<-as.matrix(wys.mat[,apply(wys.mat,2,sd)>0])
 
-  rownames(wXs.mat)<-rownames(wX.mat)<-colnames(X)
-  rownames(wys.mat)<-rownames(wy.mat)<-colnames(y)
+    rownames(wXs.mat)<-rownames(wX.mat)<-colnames(X)
+    rownames(wys.mat)<-rownames(wy.mat)<-colnames(y)
 
-  rownames(Z.mat)<-rownames(ZX.mat)<-rownames(Zy.mat)<-rownames(X)
+    rownames(Z.mat)<-rownames(ZX.mat)<-rownames(Zy.mat)<-rownames(X)
 
-  if(length(X.c)>0) beta.out<-lm(Z.mat~X.c) else beta.out<-NULL
-  output<-list("z"=Z.mat,"z.X"=ZX.mat,"z.y"=Zy.mat,"w.Xs"=wXs.mat,"w.ys"=wys.mat,
+    if(length(X.c)>0) beta.out<-lm(Z.mat~X.c) else beta.out<-NULL
+    output<-list("z"=Z.mat,"z.X"=ZX.mat,"z.y"=Zy.mat,"w.Xs"=wXs.mat,"w.ys"=wys.mat,
                "w.X"=wX.mat,"w.y"=wy.mat, "beta.z"=beta.out,"lz"=lz,"lz.X"=lz.X,"lz.y"=lz.y,"bic"=bic.sort,"proportionX"=proportionX)
 
-  return(output)
+    return(output)
 }
 
 MD2S_inner <- function(X0,y0,X.c.0=NULL,X.X.0=NULL, X.y.0=NULL,init0="svd",sim0=FALSE,tol0=tol){
