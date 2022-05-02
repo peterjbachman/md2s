@@ -100,11 +100,12 @@ MD2S <- function( # List of arguments and descriptions below:
     #   Potential purpose: proportionX may be intended to measure how much larger the `X` dataset is than the `y` dataset. It does nothing here, though.
     proportionX <- lz <- lz.X <- lz.y <- NULL
     
-    # (???) UNEXPLAINED! (???)
-    # BACKGROUND: the `make.int` function is defined below. 
-    #   We aren't sure what it does, but it apparently creates a matrix that's 
-    #   almost exactly the same as the original with miniscule differences. 
-    #   `X1` and `y1` record these miniscule differences between `X`/`y` and `make.int(X)`/`make.int(y)`.
+    # Double-center `X1` and `y1`:
+    #   "we preprocess the matrices by double-centering them, so that the row-mean, 
+    #   column-mean, and grand mean is zero" (pg. 216 of paper)
+    # BACKGROUND: the `make.int` function is defined far below. 
+    # `make.int` standardizes the rows (columns) of a matrix such that each
+    #   row (column) of the matrix has the same standard deviation & mean.
     X1 <- X - make.int(X)
     y1 <- y - make.int(y)
     
@@ -417,7 +418,9 @@ check.cor <- function(z.run) {
   cov(wX, wy)
 }
 
-## Creates integers, but based on what?
+# `make.int` standardizes the rows (columns) of a matrix such that each
+#   row (column) of the matrix has the same standard deviation & mean. I think
+#   it also does something with the grand mean.
 make.int <- function(X) {
   int1 <- rep(1, nrow(X)) %*% t(colMeans(X))
   int2 <- rowMeans(X) %*% t(rep(1, ncol(X)))
