@@ -10,9 +10,44 @@
 library(MASS)
 library(irlba)
 
-# SECTION 1
+# SECTION 1 - wowsa this is gonna be fun! ::UpsideDownSmileyFaceEmoji::
 
-MD2S <- function(X,y,X.s=NULL,X.X=NULL, X.y=NULL,init="svd",dim=1,sim=FALSE,tol=1e-6,BIC=FALSE){
+MD2S <- function( #List of arguments and descriptions below:
+  X, # N x K_1 dataset m = 1 of realized outcomes.
+    # DESCRIPTION: first dataset of realized outcomes for `N` observations and
+    #   `K_1` covariates. Note that `K_1` & `K_2` can differ.
+    # EXAMPLE: roll-call votes for `N` legislators with `K_1` covariates.
+  y, # N x K_2 dataset m = 2 of realized outcomes.
+    # DESCRIPTION: first dataset of realized outcomes for `N` observations and
+    #   `K_2` covariates. Note that `K_1` & `K_2` can differ.
+    # EXAMPLE: floor speech text for `N` legislators with `K_2` covariates.
+  X.s = NULL, # (???) user-provided covariates for estimating scaled locations (???)
+    # [DESCRIPTION NEEDED]
+    # [VERIFICATION CHECK NEEDED]
+  X.X = NULL, # (???) user-provided covariates for estimating scaled locations (???)
+    # [DESCRIPTION NEEDED]
+    # [VERIFICATION CHECK NEEDED]
+  X.y = NULL, # (???) user-provided covariates for estimating scaled locations (???)
+    # [DESCRIPTION NEEDED]
+    # [VERIFICATION CHECK NEEDED]
+  init = "svd", # 
+    # [DESCRIPTION NEEDED]
+    # [VERIFICATION CHECK NEEDED]
+  dim = 1, # 
+    # [DESCRIPTION NEEDED]
+    # [VERIFICATION CHECK NEEDED]
+  sim = FALSE, # 
+    # [DESCRIPTION NEEDED]
+    # [VERIFICATION CHECK NEEDED]
+  tol = 1e-6, # (??TOL = Tolerance Parameter??) 
+      # TOL = convergence tolerance parameter. 
+      # DESCRIPTION: criteria for iteration termination. Iterations terminate
+      #   if difference between current & prior iteration < `TOL` value.
+    # [VERIFICATION CHECK NEEDED]
+  BIC = FALSE # (??BIC = Bayesian Information Criterion??) 
+    # [DESCRIPTION NEEDED]
+    # [VERIFICATION CHECK NEEDED]
+) {
   if(BIC==FALSE) bic.sort<-NULL
   X.c<-X.s
   n<-nrow(X)
