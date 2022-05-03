@@ -41,3 +41,15 @@ mean(X1) # Basically zero.
 colMeans(y1) # Basically zero.
 head(rowMeans(y1)) # basically zero.
 mean(y1) # Basically zero.
+
+
+
+# WHAT IS `my.norm` FUNCTION DOING?
+#   ANSWER:  `my.norm` creates z-scores for every value of input.
+test1 <- t(b0$z%*%X1)
+my.norm <- function(x) {
+  x <- as.vector(x)
+  x <- x - mean(x)
+  (x / sum(x^2)^.5)
+}
+# Test with

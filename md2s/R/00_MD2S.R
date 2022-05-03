@@ -84,12 +84,12 @@ MD2S <- function( # List of arguments and descriptions below:
     ZX.mat <- Zy.mat <- Z.mat <- as.matrix(rep(1, n))
 
     
-    # Creates two (row?) vectors of 1s with length = number of columns in X.
+    # Creates one (row?) vector of 1s with length = K_1 (i.e., `ncol(X)`).
     #   (from paper): W_{(M)} is matrix of shared factors for the shares subspace for the dataset Y_{(M)}.
     wXs.mat <- wX.mat <- rep(1,ncol(X))
     
-    # Creates two (row?) vectors of 1s with length = number of columns in y.
-    #   (from paper): W_{(M)} is matrix of shared factors for the shares ubspace for the dataset Y_{(M)}.
+    # Creates one (row?) vector of 1s with length = K_2 (i.e., `ncol(y)`).
+    #   (from paper): W_{(M)} is matrix of shared factors for the shared subspace for the dataset Y_{(M)}.
     wys.mat <- wy.mat <- rep(1, ncol(y))
     
     # REPEAT of third to last line of code.
@@ -158,43 +158,141 @@ MD2S <- function( # List of arguments and descriptions below:
       )
       #,burnin=0,gibbs=100,thin=1) - ORIGINAL COMMENT! Potentially additional arguments they planned to provide??
       
-      Z.mat<-cbind(Z.mat,b0$z)
+      Z.mat <- cbind(
+        Z.mat, # (100 x 1) col. vector of 1s; (LIKELY) intercept term. 
+        b0$z # (100 x 1) col. vector; (LIKELY) latent locations on shared subspace.
+          # DESCRIPTION: (from paper) "Z_S contains latent locations on the 
+          #   shared subspace in columns for each of the Q_S dimensions" (pg. 216).
+          #   Likely only 1 column because `dim` = 1. If `dim` > 1 then `ncol(b0$z)` > 1. 
+          # EXAMPLE: vector of scaled ideological locations of legislators.
+      ) # OUTPUT: (N x 2) matrix containing column of 1s & column of z's.
       
-      Zy.mat<-cbind(Zy.mat,b0$z.y)
+      Zy.mat <- cbind(
+        Zy.mat, # (N x 1) col. vector of 1s; (LIKELY) intercept term.
+        b0$z.y # (N x 1) col. vector; (LIKELY) latent locations on y's subspace.
+          # DESCRIPTION: (from paper) "each column of Z_{(m)} contains the latent 
+          #   locations in the idiosyncratic subspace for Q_{(m)} latent dimensions" (pg. 216).
+          #   Again, likely only 1 column because `dim` = 1.
+          # EXAMPLE: vector of scaled ideological locations of legislators based 
+          #   on roll call votes.
+      ) # OUTPUT: (N x 2) matrix containing column of 1s & column of z.y's.
       
-      ZX.mat<-cbind(ZX.mat,b0$z.X)
+      ZX.mat <- cbind(
+        ZX.mat, # (100 x 1) col. vector of 1s; (LIKELY) intercept term.
+        b0$z.X # (100 x 1) col. vector; (LIKELY) latent locations on X's subspace.
+          # DESCRIPTION: (from paper) "each column of Z_{(m)} contains the latent 
+          #   locations in the idiosyncratic subspace for Q_{(m)} latent dimensions" (pg. 216).
+          #   Again, likely only 1 column because `dim` = 1.
+          # EXAMPLE: vector of scaled ideological locations of legislators based 
+          #   on floor speech text data.
+      ) # OUTPUT: (N x 2) matrix containing column of 1s & column of z.X's
       
-      wXs.mat<-cbind(wXs.mat,my.norm(t(b0$z%*%X1)))
-    wys.mat<-cbind(wys.mat,my.norm(t(b0$z%*%y1)))
-    wX.mat<-cbind(wX.mat,my.norm(t(b0$z.X%*%X1)))
-    wy.mat<-cbind(wy.mat,my.norm(t(b0$z.y%*%y1)))
-    proportionX[i]<-b0$pr
+      
+  # OVERVIEW: (LIKELY) the next four 'commands' of code normalize (or standardize 
+  #   to z-scores that follow the normal dist.) the latent locations on each relevant subspace.
+      
+      wXs.mat <- cbind(
+        wXs.mat, # A (row?) vector of 1s with length = K_1 (# of covariates in X, or `ncol(X)`).
+        my.norm( # `my.norm` creates z-scores for every value of input.
+          t(b0$z%*%X1) 
+        ) # OUTPUT: (K_1 x 1) column vector.
+      ) # OUTPUT: (K_1 x 2) matrix with a column of 1s and column of z-scores.
+      # (from paper): "W_{(M)} is matrix of shared factors for the shared 
+      #   subspace for the dataset Y_{(M)}" (pg. 216).
+      
+      # Same as above except using `y1`.
+      wys.mat<-cbind(wys.mat,my.norm(t(b0$z%*%y1)))
+      
+      # Same as above except using `z.X` and `X1`.
+      wX.mat<-cbind(wX.mat,my.norm(t(b0$z.X%*%X1)))
+      
+      # Same as above except using `z.y` and `y1`.
+      wy.mat<-cbind(wy.mat,my.norm(t(b0$z.y%*%y1)))
+      
+    
+      # (LIKELY) this is to assess if two L_{(m)} are proportional:  
+      #   (from paper) "We assume that the two matrices L_{(1)} and L_{(2)} are 
+      #     proportional, so any difference between them is attributable to the 
+      #     relative scales across data sources Y_{(m)}
+      proportionX[i]<-b0$pr # Recall `i in dim`, so `i` is a dimension.
 
-    if(nrow(X1)<max(ncol(X1),ncol(y1))){
-      lz[i]<-t(b0$z)%*%(X1%*%t(X1))%*%(y1%*%t(y1))%*%b0$z
-      } else {
-        lz[i]<-((t(b0$z)%*%X1)%*%t(X1))%*%(y1%*%(t(y1)%*%b0$z))
-      }
-      lz.X[i]<-sum((t(X1)%*%b0$z.X)^2)
-      lz.y[i]<-sum((t(y1)%*%b0$z.y)^2)
-    }
+      
+      # (LIKELY) creates the square L_S matrix with `ncol` = `nrow` = `dim`,
+      #   or the number of latent dimensions of the shared subspace Q_S.
+      # (From paper) "L_S is Q_S × Q_S non-negative, diagonal matrix of loadings
+      #   for the shared subspace" (pg. 216).
+      if(nrow(X1) < max(ncol(X1), # Equals K_1 (# of covariates in X)
+                        ncol(y1) # Equals K_2 (# of covariates in y)
+                        )
+        ){
+          lz[i] <- t(b0$z) %*% (X1 %*% t(X1)) %*% (y1 %*% t(y1)) %*% b0$z
+        } else {
+          lz[i] <- ((t(b0$z) %*% X1) %*% t(X1)) %*% (y1 %*% (t(y1) %*% b0$z))
+        } # OUTPUT: (1 x 1) matrix (for single dimension, `dim` = 1).
+      
+      # (LIKELY) following two lines create the square L_{(m)} matrix with `ncol` = `nrow` = `dim`,
+      #   or the number of latent dimensions of the idiosyncratic subspace Q_{(m)}.
+      # (From paper) "L_S is Q_{(m)} × Q_{(m)} non-negative, diagonal matrix of 
+      #   loadings for the idiosyncratic subspaces" (pg. 216).
+      lz.X[i] < -sum((t(X1) %*% b0$z.X)^2)
+      lz.y[i] <- sum((t(y1) %*% b0$z.y)^2)
+    } # For-loop repeats for every dimension estimated (i.e., when `dim` > 1)
 
-    Z.mat<-as.matrix(Z.mat[,apply(Z.mat,2,sd)>0])
-    Zy.mat<-as.matrix(Zy.mat[,apply(Zy.mat,2,sd)>0])
-    ZX.mat<-as.matrix(ZX.mat[,apply(ZX.mat,2,sd)>0])
-    wX.mat<-as.matrix(wX.mat[,apply(wX.mat,2,sd)>0])
-    wy.mat<-as.matrix(wy.mat[,apply(wy.mat,2,sd)>0])
-    wXs.mat<-as.matrix(wXs.mat[,apply(wXs.mat,2,sd)>0])
-    wys.mat<-as.matrix(wys.mat[,apply(wys.mat,2,sd)>0])
+    # What the heck? This is literally just `Z.mat[,2]`
+    #   Check for yourself by running:
+    #   `as.matrix(Z.mat[,2]) == as.matrix(Z.mat[,apply(Z.mat,2,sd) > 0])`
+    #   Everything is `TRUE`. Why do it like this?
+    Z.mat <- as.matrix(Z.mat[,apply(Z.mat,2,sd) > 0])
+    
+    # Same as above but for Zy.mat:
+    Zy.mat <- as.matrix(Zy.mat[,apply(Zy.mat,2,sd) > 0])
+    
+    # Same as above but for ZX.mat:
+    ZX.mat <- as.matrix(ZX.mat[,apply(ZX.mat,2,sd) > 0])
+    
+    # Same as above but for wX.mat:
+    wX.mat <- as.matrix(wX.mat[,apply(wX.mat,2,sd) > 0])
+    
+    # Same as above but for wy.mat:
+    wy.mat <- as.matrix(wy.mat[,apply(wy.mat,2,sd) > 0])
+    
+    # Same as above but for wXs.mat:
+    wXs.mat <- as.matrix(wXs.mat[,apply(wXs.mat,2,sd) > 0])
+    
+    # Same as above but for wys.mat:
+    wys.mat <- as.matrix(wys.mat[,apply(wys.mat,2,sd) > 0])
 
-    rownames(wXs.mat)<-rownames(wX.mat)<-colnames(X)
-    rownames(wys.mat)<-rownames(wy.mat)<-colnames(y)
-
+    # Gives the colnames (i.e., covariate names) from `X` (`y`) to rows of 
+    #   `wX.mat` (`wy.mat`) and `wXs.mat` (`wys.mat`).
+    rownames(wXs.mat) <- rownames(wX.mat) <- colnames(X)
+    rownames(wys.mat) <- rownames(wy.mat) <- colnames(y)
+    
+    # Similar to above two lines of code, but all the `Z` matrices.
     rownames(Z.mat)<-rownames(ZX.mat)<-rownames(Zy.mat)<-rownames(X)
 
-    if(length(X.c)>0) beta.out<-lm(Z.mat~X.c) else beta.out<-NULL
-    output<-list("z"=Z.mat,"z.X"=ZX.mat,"z.y"=Zy.mat,"w.Xs"=wXs.mat,"w.ys"=wys.mat,
-               "w.X"=wX.mat,"w.y"=wy.mat, "beta.z"=beta.out,"lz"=lz,"lz.X"=lz.X,"lz.y"=lz.y,"bic"=bic.sort,"proportionX"=proportionX)
+    # If there are shared covariates, regresses `Z.mat` on `X.c` and assigns 
+    #   the resulting `lm` object to `beta.out`.
+    if(length(X.c) > 0){
+      beta.out <- lm(Z.mat ~ X.c) 
+    }  else {
+      beta.out <- NULL
+    }
+       
+    output<-list(
+          "z"       = Z.mat,
+          "z.X"     = ZX.mat,
+          "z.y"     = Zy.mat,
+          "w.Xs"    = wXs.mat,
+          "w.ys"    = wys.mat,
+          "w.X"     = wX.mat,
+          "w.y"     = wy.mat, 
+          "beta.z"  = beta.out,
+          "lz"      = lz,
+          "lz.X"    = lz.X,
+          "lz.y"    = lz.y,
+          "bic"     = bic.sort,
+      "proportionX" = proportionX
+    )
 
     return(output)
 }
@@ -501,6 +599,7 @@ tfidf <- function(mat) {
 }
 
 ## Normalizing function?
+# `my.norm` creates z-scores for every value of input vector. - Patrick
 my.norm <- function(x) {
   x <- as.vector(x)
   x <- x - mean(x)
