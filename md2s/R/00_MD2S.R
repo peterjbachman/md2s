@@ -149,12 +149,12 @@ MD2S <- function( # List of arguments and descriptions below:
       
       # (???) WHAT DOES `MD2S_inner` FUNCTION DO (???)
       b0 <- MD2S_inner(
-        X0 = X1,
-        y0 = y1,
-        X.c.0 = X.c,
-        X.X.0=X.X,
-        X.y.0=X.y,
-        tol0=tol
+        X0 = X1, # Double-centered/scaled, derived from X.
+        y0 = y1, # Double-centered/scaled, derived from y1.
+        X.c.0 = X.c, # covariates associated with shared subspace.
+        X.X.0 = X.X, # Covariates associated with X subspace.
+        X.y.0 = X.y, # covariates associated with y subspace.
+        tol0 = tol   # tolerance parameter.
       )
       #,burnin=0,gibbs=100,thin=1) - ORIGINAL COMMENT! Potentially additional arguments they planned to provide??
       
@@ -199,235 +199,244 @@ MD2S <- function( # List of arguments and descriptions below:
     return(output)
 }
 
-MD2S_inner <- function(X0,y0,X.c.0=NULL,X.X.0=NULL, X.y.0=NULL,init0="svd",sim0=FALSE,tol0=tol){
+MD2S_inner <- function(
+  X0, # Must be the double-centered/scaled matrix derived from X.
+  y0, # Must be the double-centered/scaled matrix derived from y.
+  X.c.0 = NULL, # covariates associated with shared subspace.
+  X.X.0 = NULL, # covariates associated with X subspace.
+  X.y.0 = NULL, # covariates associated with y subspace.
+  init0 = "svd", # singular value decomposition (no other options?)
+  sim0 = FALSE, # Indicates whether we're using simulated data (`TRUE` not an option?)
+  tol0 = tol # Convergence/iteration tolerance parameter.
+  ) {
 
-  X<-X0;y<-y0;X.c<-X.c.0;init<-init0;sim<-sim0;
+    X<-X0;y<-y0;X.c<-X.c.0;init<-init0;sim<-sim0;
 
-  tol<-tol0
+    tol<-tol0
 
-  X.X<-X.X.0;X.y<-X.y.0
+    X.X<-X.X.0;X.y<-X.y.0
 
-  my.norm<-function(x) {x<-as.vector(x);x<-x-mean(x);(x/sum(x^2)^.5)}
-  cleanup<-function(X.c){
-    if(length(X.c)>0){
-      X.c<-apply(X.c,2,FUN=function(x) x-mean(x))
-      X.c<-X.c[,colMeans(X.c^2)>1e-10]
-    }
-    X.c
-  }
-  X.c<-cleanup(X.c)
-  X.X<-cleanup(X.X)
-  X.y<-cleanup(X.y)
-
-
-  ##Declare and initialize
-  n<-nrow(X)
-  X1<-X;y1<-y
-  z.x<-z.y<-z<-rep(1,n)
-
-  XXprime<-X%*%t(X)
-  yyprime<-y%*%t(y)
-
-  if(length(X.c)>0) hat.Xc<-ginv(t(X.c)%*%X.c)%*%t(X.c)
-  if(length(X.X)>0) hat.XX<-ginv(t(X.X)%*%X.X)%*%t(X.X)
-  if(length(X.y)>0) hat.Xy<-ginv(t(X.y)%*%X.y)%*%t(X.y)
-
-  if(init=="svd"){
-    if(FALSE){
-      z.x<-svd(X1,nu=1)$u[,1]
-      z.y<-svd(y1,nu=1)$u[,1]
-    }
-    if(nrow(X1)<ncol(X1)) z.x<-irlba(X1,nu=1,nv=1)$u[,1] else z.x<-my.norm(X1%*%irlba(crossprod(X1),nu=1,nv=1)$v[,1])
-    if(nrow(y1)<ncol(y1)) z.y<-irlba(y1,nu=1,nv=1)$u[,1] else z.y<-my.norm(y1%*%irlba(crossprod(y1),nu=1,nv=1)$v[,1])
-
-    z<-(z.x+z.y)/2
-    z<-my.norm(z);z.x<-my.norm(z.x);z.y<-my.norm(z.y)
-
-  }
-
-  loglik<-0
-
-  # SECTION 2
-
-  for(i in 1:1000){
-
-    rm.zX<-function(x) fastres(x,z.x)
-    rm.zy<-function(x) fastres(x,z.y)
-    rm.z<-function(x) fastres(x,z)
-
-    X1<-X-(z.x%*%t(z.x))%*%X
-    y1<-y-(z.y%*%t(z.y))%*%y
-
-    eig.form<-t(X1)%*%y1
-    eig.form2<-t(y1)%*%X1
-
-    if(FALSE){
-      svd1<-svd(eig.form,nu=1)
-      svd2<-svd(eig.form2,nu=1)
-    }
-    svd1<-irlba(eig.form,nu=1,nv=1)
-    svd2<-irlba(eig.form2,nu=1,nv=1)
-    w1<-(svd1$u[,1])
-    w2<-(svd2$u[,1])
-    z.freq1<-my.norm(X1%*%w1)
-    z.freq2<-my.norm(y1%*%w2)
-    z.freq2<-z.freq2*sign(cor(z.freq1,z.freq2))
-
-    ##Initialize least squares estimates
-    if(length(X.c)>0){
-      z.freq3<-as.vector(X.c%*%(hat.Xc%*%z))
-      z.freq3<-z.freq3*cor(z.freq2,z.freq3)
-      z.freq3<-my.norm(z.freq3)
-    }
-
-    if(length(X.X)>0){
-      z.freq3X<-as.vector(X.X%*%(hat.XX%*%z.x))
-      z.freq3X<-z.freq3X*cor(z.freq1,z.freq3X)
-      z.freq3X<-my.norm(z.freq3X)
-    }
-
-    if(length(X.y)>0){
-      z.freq3y<-as.vector(X.y%*%(hat.Xy%*%z.y))
-      z.freq3y<-z.freq3y*cor(z.freq2,z.freq3y)
-      z.freq3y<-my.norm(z.freq3y)
-    }
-
-    z<-my.norm(z)
-
-    alpha.func<-function(x,z1,z2){
-      p1<-exp(x)/(1+exp(x))
-      check.cor(p1*z1+(1-p1)*z2)
-    }
-
-    alpha.func.X<-function(x,z1,z2){
-      p1<-exp(x)/(1+exp(x))
-      check.cor.X(p1*z1+(1-p1)*z2)
-    }
-
-    alpha.func.y<-function(x,z1,z2){
-      p1<-exp(x)/(1+exp(x))
-      check.cor.y(p1*z1+(1-p1)*z2)
-    }
-
-    alpha.func1<-function(x) alpha.func(x,z.freq1,z.freq2)
-    alpha.func2<-function(x) alpha.func(x,z.fit3,z.res3)
-    alpha.func2.X<-function(x) alpha.func.X(x,z.fit3,z.res3)
-    alpha.func2.y<-function(x) alpha.func.y(x,z.fit3,z.res3)
-
-    check.cor<-function(z.run){
-      z.run<-my.norm(z.run-mean(z.run))
-      if(nrow(X)<ncol(X)) wX<-as.vector(XXprime%*%z.run) else wX<-as.vector(X1%*%(t(X1)%*%z.run))
-      if(nrow(y)<ncol(y)) wy<-as.vector(yyprime%*%z.run) else wy<-as.vector(y1%*%(t(y1)%*%z.run))
-      cov(wX,wy)
-    }
-
-    check.cor.X<-function(z.run){
-      z.run<-my.norm(z.run-mean(z.run))
-      if(nrow(X)<ncol(X)) wX<-as.vector(XXprime%*%z.run) else wX<-as.vector(X%*%(t(X)%*%z.run))
-      var(wX)
-    }
-
-    check.cor.y<-function(z.run){
-      z.run<-my.norm(z.run-mean(z.run))
-      if(nrow(y)<ncol(y)) wy<-as.vector(yyprime%*%z.run) else wy<-as.vector(y%*%(t(y)%*%z.run))
-      var(wy)
-    }
-    cor.last<-check.cor(z)
-
-    z.last<-z
-    alpha.min<-optimize(alpha.func1,lower=-5,upper=5,maximum=TRUE)$max
-    p1<-exp(alpha.min)
-    p1<-p1/(1+p1)
-    z<-scale(p1*z.freq1+(1-p1)*z.freq2)
-    z<-my.norm(z)
-    p1.f <-p1/(1+p1)
-
-    ##Update with covariates
-    if(length(X.c)>0){
-      lm.z<-lm(z~z.freq3)
-      z.fit3<-my.norm(lm.z$fit)
-      z.res3<-my.norm(lm.z$res)
-      alpha.min<-optimize(alpha.func2,lower=-5,upper=5,maximum=TRUE)$max
-      p1<-exp(alpha.min)
-      p1<-p1/(1+p1)
-      z<-scale(p1*z.fit3+(1-p1)*z.res3)
-      z<-my.norm(z)
-    }
-
-    if(length(X.X)>0){
-      lm.z<-lm(z.x~z.freq3X)
-      z.fit3<-my.norm(lm.z$fit)
-      z.res3<-my.norm(lm.z$res)
-      alpha.min<-optimize(alpha.func2.X,lower=-5,upper=5,maximum=TRUE)$max
-      p1<-exp(alpha.min)
-      p1<-p1/(1+p1)
-      z.x<-scale(p1*z.fit3+(1-p1)*z.res3)
-      z.x<-my.norm(z.x)
-    }
-
-    if(length(X.y)>0){
-      lm.z<-lm(z.y~z.freq3y)
-      z.fit3<-my.norm(lm.z$fit)
-      z.res3<-my.norm(lm.z$res)
-      alpha.min<-optimize(alpha.func2.y,lower=-5,upper=5,maximum=TRUE)$max
-      p1<-exp(alpha.min)
-      p1<-p1/(1+p1)
-      z.y<-scale(p1*z.fit3+(1-p1)*z.res3)
-      z.y<-my.norm(z.y)
-    }
-
-
-    loglik.last<-loglik
-    lz<-sum((t(X1)%*%z)^2)+sum((t(y1)%*%z)^2)
-    lz.x<-sum((t(X1)%*%z.x)^2)
-    lz.y<-sum((t(y1)%*%z.y)^2)
-    loglik<-lz+lz.x+lz.y
-
-    if(nrow(X1)<ncol(X1)) {
-      loglik<-t(z)%*%((X1%*%t(X1))%*%(y1%*%t(y1)))%*%z
-    } else {
-      loglik<-(t(z)%*%X1)%*%t(X1)%*%y1%*%(t(y1)%*%z)
-    }
-    loglik<-as.vector(loglik)
-
-    if(i%%50==0)	{
-      cat("  Iteration ", i, "\n")
-      cat("  Current log-likelihood bound:", round(loglik,4), "\n")
-
-
-    }
-    if(i>1)  {
-      if(abs(loglik-loglik.last)/loglik.last < tol| (loglik<loglik.last & i>10) ){
-        cat("## Convergence after ", i, "iterations ## \n\n")
-        break
+    my.norm<-function(x) {x<-as.vector(x);x<-x-mean(x);(x/sum(x^2)^.5)}
+    cleanup<-function(X.c){
+      if(length(X.c)>0){
+        X.c<-apply(X.c,2,FUN=function(x) x-mean(x))
+        X.c<-X.c[,colMeans(X.c^2)>1e-10]
       }
+      X.c
+    }
+    X.c<-cleanup(X.c)
+    X.X<-cleanup(X.X)
+    X.y<-cleanup(X.y)
+
+
+    ##Declare and initialize
+    n<-nrow(X)
+    X1<-X;y1<-y
+    z.x<-z.y<-z<-rep(1,n)
+
+    XXprime<-X%*%t(X)
+    yyprime<-y%*%t(y)
+
+    if(length(X.c)>0) hat.Xc<-ginv(t(X.c)%*%X.c)%*%t(X.c)
+    if(length(X.X)>0) hat.XX<-ginv(t(X.X)%*%X.X)%*%t(X.X)
+    if(length(X.y)>0) hat.Xy<-ginv(t(X.y)%*%X.y)%*%t(X.y)
+  
+    if(init=="svd"){
+      if(FALSE){
+        z.x<-svd(X1,nu=1)$u[,1]
+        z.y<-svd(y1,nu=1)$u[,1]
+      }
+      if(nrow(X1)<ncol(X1)) z.x<-irlba(X1,nu=1,nv=1)$u[,1] else z.x<-my.norm(X1%*%irlba(crossprod(X1),nu=1,nv=1)$v[,1])
+      if(nrow(y1)<ncol(y1)) z.y<-irlba(y1,nu=1,nv=1)$u[,1] else z.y<-my.norm(y1%*%irlba(crossprod(y1),nu=1,nv=1)$v[,1])
+  
+      z<-(z.x+z.y)/2
+      z<-my.norm(z);z.x<-my.norm(z.x);z.y<-my.norm(z.y)
+  
+    }
+  
+    loglik<-0
+  
+  # SECTION 2
+  
+    for(i in 1:1000){
+  
+      rm.zX<-function(x) fastres(x,z.x)
+      rm.zy<-function(x) fastres(x,z.y)
+      rm.z<-function(x) fastres(x,z)
+  
+      X1<-X-(z.x%*%t(z.x))%*%X
+      y1<-y-(z.y%*%t(z.y))%*%y
+  
+      eig.form<-t(X1)%*%y1
+      eig.form2<-t(y1)%*%X1
+  
+      if(FALSE){
+        svd1<-svd(eig.form,nu=1)
+        svd2<-svd(eig.form2,nu=1)
+      }
+      svd1<-irlba(eig.form,nu=1,nv=1)
+      svd2<-irlba(eig.form2,nu=1,nv=1)
+      w1<-(svd1$u[,1])
+      w2<-(svd2$u[,1])
+      z.freq1<-my.norm(X1%*%w1)
+      z.freq2<-my.norm(y1%*%w2)
+      z.freq2<-z.freq2*sign(cor(z.freq1,z.freq2))
+    
+      ##Initialize least squares estimates
+      if(length(X.c)>0){
+        z.freq3<-as.vector(X.c%*%(hat.Xc%*%z))
+        z.freq3<-z.freq3*cor(z.freq2,z.freq3)
+        z.freq3<-my.norm(z.freq3)
+      }
+  
+      if(length(X.X)>0){
+        z.freq3X<-as.vector(X.X%*%(hat.XX%*%z.x))
+        z.freq3X<-z.freq3X*cor(z.freq1,z.freq3X)
+        z.freq3X<-my.norm(z.freq3X)
+      }
+  
+      if(length(X.y)>0){
+        z.freq3y<-as.vector(X.y%*%(hat.Xy%*%z.y))
+        z.freq3y<-z.freq3y*cor(z.freq2,z.freq3y)
+        z.freq3y<-my.norm(z.freq3y)
+      }
+  
+      z<-my.norm(z)
+  
+      alpha.func<-function(x,z1,z2){
+        p1<-exp(x)/(1+exp(x))
+        check.cor(p1*z1+(1-p1)*z2)
+      }
+  
+      alpha.func.X<-function(x,z1,z2){
+        p1<-exp(x)/(1+exp(x))
+        check.cor.X(p1*z1+(1-p1)*z2)
+      }
+  
+      alpha.func.y<-function(x,z1,z2){
+        p1<-exp(x)/(1+exp(x))
+        check.cor.y(p1*z1+(1-p1)*z2)
+      }
+  
+      alpha.func1<-function(x) alpha.func(x,z.freq1,z.freq2)
+      alpha.func2<-function(x) alpha.func(x,z.fit3,z.res3)
+      alpha.func2.X<-function(x) alpha.func.X(x,z.fit3,z.res3)
+      alpha.func2.y<-function(x) alpha.func.y(x,z.fit3,z.res3)
+  
+      check.cor<-function(z.run){
+        z.run<-my.norm(z.run-mean(z.run))
+        if(nrow(X)<ncol(X)) wX<-as.vector(XXprime%*%z.run) else wX<-as.vector(X1%*%(t(X1)%*%z.run))
+        if(nrow(y)<ncol(y)) wy<-as.vector(yyprime%*%z.run) else wy<-as.vector(y1%*%(t(y1)%*%z.run))
+        cov(wX,wy)
+      }
+  
+      check.cor.X<-function(z.run){
+        z.run<-my.norm(z.run-mean(z.run))
+        if(nrow(X)<ncol(X)) wX<-as.vector(XXprime%*%z.run) else wX<-as.vector(X%*%(t(X)%*%z.run))
+        var(wX)
+      }
+  
+      check.cor.y<-function(z.run){
+        z.run<-my.norm(z.run-mean(z.run))
+        if(nrow(y)<ncol(y)) wy<-as.vector(yyprime%*%z.run) else wy<-as.vector(y%*%(t(y)%*%z.run))
+        var(wy)
+      }
+      cor.last<-check.cor(z)
+  
+      z.last<-z
+      alpha.min<-optimize(alpha.func1,lower=-5,upper=5,maximum=TRUE)$max
+      p1<-exp(alpha.min)
+      p1<-p1/(1+p1)
+      z<-scale(p1*z.freq1+(1-p1)*z.freq2)
+      z<-my.norm(z)
+      p1.f <-p1/(1+p1)
+  
+      ##Update with covariates
+      if(length(X.c)>0){
+        lm.z<-lm(z~z.freq3)
+        z.fit3<-my.norm(lm.z$fit)
+        z.res3<-my.norm(lm.z$res)
+        alpha.min<-optimize(alpha.func2,lower=-5,upper=5,maximum=TRUE)$max
+        p1<-exp(alpha.min)
+        p1<-p1/(1+p1)
+        z<-scale(p1*z.fit3+(1-p1)*z.res3)
+        z<-my.norm(z)
+      }
+  
+      if(length(X.X)>0){
+        lm.z<-lm(z.x~z.freq3X)
+        z.fit3<-my.norm(lm.z$fit)
+        z.res3<-my.norm(lm.z$res)
+        alpha.min<-optimize(alpha.func2.X,lower=-5,upper=5,maximum=TRUE)$max
+        p1<-exp(alpha.min)
+        p1<-p1/(1+p1)
+        z.x<-scale(p1*z.fit3+(1-p1)*z.res3)
+        z.x<-my.norm(z.x)
+      }
+  
+      if(length(X.y)>0){
+        lm.z<-lm(z.y~z.freq3y)
+        z.fit3<-my.norm(lm.z$fit)
+        z.res3<-my.norm(lm.z$res)
+        alpha.min<-optimize(alpha.func2.y,lower=-5,upper=5,maximum=TRUE)$max
+        p1<-exp(alpha.min)
+        p1<-p1/(1+p1)
+        z.y<-scale(p1*z.fit3+(1-p1)*z.res3)
+        z.y<-my.norm(z.y)
+      }
+  
+  
+      loglik.last<-loglik
+      lz<-sum((t(X1)%*%z)^2)+sum((t(y1)%*%z)^2)
+      lz.x<-sum((t(X1)%*%z.x)^2)
+      lz.y<-sum((t(y1)%*%z.y)^2)
+      loglik<-lz+lz.x+lz.y
+
+     if(nrow(X1)<ncol(X1)) {
+        loglik<-t(z)%*%((X1%*%t(X1))%*%(y1%*%t(y1)))%*%z
+      } else {
+        loglik<-(t(z)%*%X1)%*%t(X1)%*%y1%*%(t(y1)%*%z)
+      }
+      loglik<-as.vector(loglik)
+  
+      if(i%%50==0)	{
+        cat("  Iteration ", i, "\n")
+        cat("  Current log-likelihood bound:", round(loglik,4), "\n")
+  
+  
+      }
+      if(i>1)  {
+        if(abs(loglik-loglik.last)/loglik.last < tol| (loglik<loglik.last & i>10) ){
+          cat("## Convergence after ", i, "iterations ## \n\n")
+          break
+        }
+      }
+
+      Xlessz<-rm.z(X)
+      ylessz<-rm.z(y)
+  
+      z.x.try<-my.norm(irlba(Xlessz,nu=1,nv=1)$u[,1])
+      z.y.try<-my.norm(irlba(ylessz,nu=1,nv=1)$u[,1])
+  
+      if(i==1) {z.x<-z.x.try; z.y<-z.y.try}
+      if(i>1) {
+        z.x<-z.x.try*sign(cor(z.x,z.x.try))
+        z.y<-z.y.try*sign(cor(z.y,z.y.try))
+      }
+      z.x<-my.norm(z.x);z.y<-my.norm(z.y);z<-my.norm(z)
+      w.Xs<-my.norm(t(z)%*%X1);w.ys<-my.norm(t(z)%*%y1)
+
+      if(sim) print(c(cor(z,z.true),cor(z.x,zX.true),cor(z.y,zy.true)))
+
     }
 
-    Xlessz<-rm.z(X)
-    ylessz<-rm.z(y)
 
-    z.x.try<-my.norm(irlba(Xlessz,nu=1,nv=1)$u[,1])
-    z.y.try<-my.norm(irlba(ylessz,nu=1,nv=1)$u[,1])
+    Xc.out<-NULL
+    if(length(X.c)>0){Xc.out<-lm(z~X.c)$coef[-1]}
 
-    if(i==1) {z.x<-z.x.try; z.y<-z.y.try}
-    if(i>1) {
-      z.x<-z.x.try*sign(cor(z.x,z.x.try))
-      z.y<-z.y.try*sign(cor(z.y,z.y.try))
-    }
-    z.x<-my.norm(z.x);z.y<-my.norm(z.y);z<-my.norm(z)
-    w.Xs<-my.norm(t(z)%*%X1);w.ys<-my.norm(t(z)%*%y1)
+    output<-list("z"=z,"z.X"=z.x,"z.y"=z.y,"w.Xs"=w.Xs,"w.ys"=w.ys,"beta.z"=Xc.out,"proportionX"=p1.f)
 
-    if(sim) print(c(cor(z,z.true),cor(z.x,zX.true),cor(z.y,zy.true)))
-
-  }
-
-
-  Xc.out<-NULL
-  if(length(X.c)>0){Xc.out<-lm(z~X.c)$coef[-1]}
-
-  output<-list("z"=z,"z.X"=z.x,"z.y"=z.y,"w.Xs"=w.Xs,"w.ys"=w.ys,"beta.z"=Xc.out,"proportionX"=p1.f)
-
-  return(output)
+    return(output)
 }
 
 # SECTION 3
