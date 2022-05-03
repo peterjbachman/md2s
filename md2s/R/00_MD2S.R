@@ -81,7 +81,7 @@ MD2S <- function( # List of arguments and descriptions below:
     #   (???) Correspond to the shared (Z_S) & idiosyncratic (Z_{(M)}) subspaces.
     #     (from paper): Z_S contains latent locations in the shared subspace in columns for each `dim` dimensions (in this case, 1).
     #     (from paper): Z_{(M)} contains latent locations in the idiosyncratic subspace for `dim` latent dimensions (in this case, 1).
-    ZX.mat <- Zy.mat <- Z.mat <- as.matrix(rep(1,n))
+    ZX.mat <- Zy.mat <- Z.mat <- as.matrix(rep(1, n))
 
     
     # Creates two (row?) vectors of 1s with length = number of columns in X.
@@ -115,33 +115,55 @@ MD2S <- function( # List of arguments and descriptions below:
       # Concatenates and prints "Fitting dimension `i`" for each `i`.
       cat("----  Fitting Dimension ", i, "----  \n")
       
-      # `fastres` function defined below. It apparently creates residuals.
+      # FUNCTION: `fastres` function defined below. 
+      #   BACKGROUND: `fastres` creates double-centered residuals.
       X1 <- fastres(
-        x = X1, 
-        z = cbind(
-          Z.mat, 
-          ZX.mat
-        )
-      )
+        x = X1, # double-centered matrix for first input dataset (m = 1)
+        z = cbind( # cbind for two same-length column vectors filled with 1s.
+          Z.mat, # column vector (see above); latent factors of shared subspace.
+          ZX.mat # column vector (see above); latent factors for subspace of 1st input dataset (m = 1)
+        ) # Here, `fastres` is creating fitted values by multiplying \beta = 3 x N matrix with X1.
+      ) # output is similar to original X1 but now the row/column/grand means are EVEN CLOSER to zero.
+      
+      # Same as above for y1:
       y1 <- fastres(y1, cbind(Z.mat, Zy.mat))
       
-      # 
-      X1<-t(fastres(t(X1),cbind(wX.mat,wXs.mat)))
+      # Same as above except performed on t(X1) and with column vectors of 1s with length = # of X covariates.
+      X1 <- t(fastres(
+        t(X1),
+        cbind(
+          wX.mat, # matrix of 1s of length ncol(X) (i.e., # of covariates in 1st dataset m = 1)
+          wXs.mat # Same as wX.mat
+        )
+      )) # Again, the means are even closer to zero generally.
       
-      # 
+      # Same as directly above for y1:
       y1<-t(fastres(t(y1),cbind(wy.mat,wys.mat)))
       
-      # 
-      X1<-X1-make.int(X1)
+      # double-centers new X1:
+      #   Again, means of new result is basically closer to zero.
+      X1<-X1 - make.int(X1)
       
-      # 
+      # Same as directly above but for new y1:
       y1<-y1-make.int(y1)
       
-      # 
-      b0<-MD2S_inner(X0=X1,y0=y1,X.c.0=X.c,X.X.0=X.X, X.y.0=X.y,tol0=tol)#,burnin=0,gibbs=100,thin=1)
+      # (???) WHAT DOES `MD2S_inner` FUNCTION DO (???)
+      b0 <- MD2S_inner(
+        X0 = X1,
+        y0 = y1,
+        X.c.0 = X.c,
+        X.X.0=X.X,
+        X.y.0=X.y,
+        tol0=tol
+      )
+      #,burnin=0,gibbs=100,thin=1) - ORIGINAL COMMENT! Potentially additional arguments they planned to provide??
+      
       Z.mat<-cbind(Z.mat,b0$z)
+      
       Zy.mat<-cbind(Zy.mat,b0$z.y)
+      
       ZX.mat<-cbind(ZX.mat,b0$z.X)
+      
       wXs.mat<-cbind(wXs.mat,my.norm(t(b0$z%*%X1)))
     wys.mat<-cbind(wys.mat,my.norm(t(b0$z%*%y1)))
     wX.mat<-cbind(wX.mat,my.norm(t(b0$z.X%*%X1)))
@@ -431,6 +453,7 @@ make.int <- function(X) {
 ## TODO Add library MASS to package
 fastres <- function(x, z) {
   z <- cbind(1, z)
+  #   NOTE: these following steps create fitted values.
   # If there are fewer rows than columns
   if (nrow(z) <= ncol(z)) fits <- z %*% MASS::ginv(t(z) %*% z) %*% (t(z) %*% x)
   # If there are more columns than rows
@@ -438,6 +461,8 @@ fastres <- function(x, z) {
 
   # Create residuals
   res <- x - fits
+  
+  # double-center the residuals (so the column, row, & grand means equal zero)
   res - make.int(res)
 }
 
