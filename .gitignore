@@ -40,3 +40,6 @@ vignettes/*.pdf
 
 # OSX Files
 *.DS_Store
+
+# Add Readme files when compiling the rmd
+README_files/
