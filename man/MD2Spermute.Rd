@@ -26,19 +26,19 @@ md2Spermute(kX.num, n, ky, nsims, nperm, nboot)
 }
 \value{
 An object containing:
-\item \code{kX.num} {Number of columns in the matrix, K(2) in the paper}
-\item \code{n} {Number of rows in the matrix}
-\item \code{ky} {Number of columns of matrix, K(1) in the paper}
-\item \code{nsims} {Number of simulations done}
-\item \code{nperm} {Number of permutations done}
-\item \code{nboot} {Number of bootstraps done}
-\item \code{fpath} {Designated file path for the result}
+\item{kX.num}{Number of columns in the matrix, K(2) in the paper}
+\item{n}{Number of rows in the matrix}
+\item{ky}{Number of columns of matrix, K(1) in the paper}
+\item{nsims}{Number of simulations done}
+\item{nperm}{Number of permutations done}
+\item{nboot}{Number of bootstraps done}
+\item{fpath}{Designated file path for the result}
 }
 \description{
 Permutation Test
 }
 \examples{
-md2Spermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)
+\dontrun{md2Spermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)}
 }
 \seealso{
 \code{\link[MD2S]{MD2S}}
