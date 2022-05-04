@@ -21,7 +21,7 @@ if(exists("out.all")){rm(out.all)}
 ## ---------------------------------------------------------------------------------------------------
 kX.num <- 100 # k(2) = 100 for Panel A 
 n <- 50 # N = 50 for Panel A 
-ky <- 40 # k(1) is held at 40
+ky <- 40 # k(1) is held at 40 
 # k(1) and k(2) are columns in the matrices 
 
 
@@ -238,8 +238,8 @@ if(!exists("out.all")){
 # save files as one
 save(out.all, file = './results_Panel_A/outall_Panel_A.RData')
 
-# # remove intermediate files
-# for(i in files.all) {
-#   file.remove(paste("./results_Panel_A/", i, sep = ""))
-# }
+# remove intermediate files
+for(i in files.all) {
+  file.remove(paste("./results_Panel_A/", i, sep = ""))
+}
 ## ---------------------------------------------------------------------------------------------------
