@@ -20,5 +20,10 @@ Collate:
     '00_MD2S.R'
     'MD2Spermute.R'
 Imports: 
+    doParallel,
+    foreach,
     irlba,
-    MASS
+    itertools,
+    MASS,
+    Matrix,
+    methods
