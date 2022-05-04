@@ -1,6 +1,5 @@
 # Toy data for 00_MD2S.R functions.
 
-install.packages("matrixStats")
 library(matrixStats)
 
 # Input datasets
@@ -11,7 +10,7 @@ y <- matrix(rnorm(100*8, 22, 5), nrow = 100, ncol = 8)
 
 # WHAT IS `make.int` FUNCTION DOING???
 #   SOLUTION: make.int() standardizes the columns & rows of the matrix:
-#   "we preprocess the matrices by double-centering them, so that the row-mean, 
+#   "we preprocess the matrices by double-centering them, so that the row-mean,
 #   column-mean, and grand mean is zero" (pg. 216 of paper)
 
 #   Check column means:
