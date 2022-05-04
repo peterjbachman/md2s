@@ -10,6 +10,8 @@
 library(MASS)
 library(irlba)
 
+
+
 MD2S <- function(X,y,X.s=NULL,X.X=NULL, X.y=NULL,init="svd",dim=1,sim=FALSE,tol=1e-6,BIC=FALSE){
   if(BIC==FALSE) bic.sort<-NULL
   X.c<-X.s
