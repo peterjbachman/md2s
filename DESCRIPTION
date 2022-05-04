@@ -1,12 +1,29 @@
 Package: md2s
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+Type: Package
+Title: Multi-Dataset Multidimensional Scaling
+Version: 0.1
+Authors@R: c(
+    person("Ted", "Enamorado", email = "ted@wustl.edu", role = "aut"),
+    person("Gabriel", "López-Moctezuma", email = "glmoctezuma@caltech.edu", role = "aut"),
+    person("Marc", "Ratkovic", email = "ratkovic@princeton.edu", role = "aut"),
+    person("Peter", "Bachman", email = "bachman.p@wustl.edu", role = "cre"),
+    person("Patrick", "Edwards", email = "edwards.p@wustl.edu", role = "ctb"),
+    person("Zion", "Little", email = "l.zion@wustl.edu", role = "ctb"),
+    person("Cecilia", "Sui", email = "c.sui@wustl.edu", role = "ctb"),
+    person("Evan", "Jo", email = "ejo@wustl.edu", role = "ctb"))
 Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
+Collate: 
+    '00_MD2S.R'
+    'MD2Spermute.R'
+Imports: 
+    doParallel,
+    foreach,
+    irlba,
+    itertools,
+    MASS,
+    Matrix,
+    methods
