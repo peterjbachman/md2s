@@ -6,6 +6,9 @@
 ##
 ## ---------------------------------------------------------------------------------------------------
 
+# TODO irlba functions need to be changed to irlba::fun()
+# TODO MASS Functions need to be changed to MASS::fun()
+
 ## Required libraries:
 library(MASS)
 library(irlba)
@@ -562,7 +565,6 @@ make.int <- function(X) {
 }
 
 ## Create residuals faster?
-## TODO Add library MASS to package
 fastres <- function(x, z) {
   z <- cbind(1, z)
   #   NOTE: these following steps create fitted values.
