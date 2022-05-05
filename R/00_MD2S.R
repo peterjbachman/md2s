@@ -312,14 +312,23 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   X.X <- X.X.0
   X.y <- X.y.0
 
+ ##standardize what's pased through, that's it. 
+ ## Give input
   my.norm <- function(x) {
+    #As vec
     x <- as.vector(x)
+    #Norm each entry to mean
     x <- x - mean(x)
+    #standardize by dividing above difference by the square root of the sum of entries squared
     (x / sum(x^2)^.5)
   }
+  ##Input optional covariates for explaining scaled locations in the shared subspace
   cleanup <- function(X.c) {
+    #If dim of X.c is greater than 0, then...
     if (length(X.c) > 0) {
+      #apply my.norm then, 
       X.c <- apply(X.c, 2, FUN = function(x) x - mean(x))
+      #get square of col means greater than below number. Then, store as X.c            
       X.c <- X.c[, colMeans(X.c^2) > 1e-10]
     }
     X.c
@@ -329,7 +338,7 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   X.y <- cleanup(X.y)
 
 
-  ## Declare and initialize
+  ## Declare and initialize, same as above. 
   n <- nrow(X)
   X1 <- X
   y1 <- y
@@ -359,7 +368,7 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   loglik <- 0
 
   # SECTION 2
-
+##I think this measures the correlation between true and estimated values over 1000 simulations per combo of N and K_1. 
   for (i in 1:1000) {
     rm.zX <- function(x) fastres(x, z.x)
     rm.zy <- function(x) fastres(x, z.y)
