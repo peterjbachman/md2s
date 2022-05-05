@@ -292,6 +292,7 @@ MD2S <- function( # List of arguments and descriptions below:
   return(output)
 }
 
+#I think that this is getting some inner product space. It's using methods to compute solutions to an underdetermined system. 
 MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived from X.
                        y0, # Must be the double-centered/scaled matrix derived from y.
                        X.c.0 = NULL, # covariates associated with shared subspace.
@@ -621,6 +622,8 @@ tfidf <- function(mat) {
 
 ## Normalizing function?
 # `my.norm` creates z-scores for every value of input vector. - Patrick
+#I'm not sure that it does. It's dividing by the square root of the sum of entries squared. It's just dividing by a common value that surpresses spread. 
+#I think that if this were creating a z-value, then we would have to multiply by root(n) and divide by some sd parameter. 
 my.norm <- function(x) {
   x <- as.vector(x)
   x <- x - mean(x)
