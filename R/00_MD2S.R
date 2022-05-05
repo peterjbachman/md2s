@@ -374,7 +374,7 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   loglik <- 0
 
   # SECTION 2
-##I think this measures the correlation between true and estimated values over 1000 simulations per combo of N and K_1. 
+##I think this measures the correlation between true and estimated values over 1000 simulations per combo of N and K_1. I'm confident that this is making the graphics that we see in the appendix. 
   for (i in 1:1000) {
     rm.zX <- function(x) fastres(x, z.x)
     rm.zy <- function(x) fastres(x, z.y)
