@@ -613,7 +613,8 @@ my.norm <- function(x) {
   (x / sum(x^2)^.5)
 }
 
-## No clue yet
+##  impute missing values by iteratively double-centering the matrix. All na values are set to 0.
+#  Note that the method choice for imputing values need not be of this method: Any method can be used.         
 dubcent.impute <- function(X) {
   X <- as.matrix(X)
   miss.mat <- is.na(X)
