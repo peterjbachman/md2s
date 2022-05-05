@@ -344,19 +344,24 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   y1 <- y
   z.x <- z.y <- z <- rep(1, n)
 
+#Okay, so I THINK this is getting the generalized inverse                   
   XXprime <- X %*% t(X)
   yyprime <- y %*% t(y)
-
+#If dim of these is non-0--so I think if the system is overdetermined, then find generallized inverse. 
   if (length(X.c) > 0) hat.Xc <- ginv(t(X.c) %*% X.c) %*% t(X.c)
   if (length(X.X) > 0) hat.XX <- ginv(t(X.X) %*% X.X) %*% t(X.X)
   if (length(X.y) > 0) hat.Xy <- ginv(t(X.y) %*% X.y) %*% t(X.y)
-
+#So this is telling us which way to solve the system. 
   if (init == "svd") {
+    ##Whenever we have FALSE passing through, we run singular value decomp to solve. This, I THINK, gets the left singular value decomp. 
     if (FALSE) {
       z.x <- svd(X1, nu = 1)$u[, 1]
       z.y <- svd(y1, nu = 1)$u[, 1]
     }
+    ##Okay, yes. Whenever X1 has more cols then rows--underdetermined--make z.x solution from psudeoinverse. Otherwise, use my.norm over the 
+    ##product of X1 and the pseudoinverse of the crossproduct of X1. I think that this comes from 
     if (nrow(X1) < ncol(X1)) z.x <- irlba(X1, nu = 1, nv = 1)$u[, 1] else z.x <- my.norm(X1 %*% irlba(crossprod(X1), nu = 1, nv = 1)$v[, 1])
+    ##Same as above but for y1.   
     if (nrow(y1) < ncol(y1)) z.y <- irlba(y1, nu = 1, nv = 1)$u[, 1] else z.y <- my.norm(y1 %*% irlba(crossprod(y1), nu = 1, nv = 1)$v[, 1])
 
     z <- (z.x + z.y) / 2
