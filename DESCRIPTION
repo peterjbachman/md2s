@@ -27,7 +27,6 @@ Imports:
     irlba,
     itertools,
     MASS,
-    Matrix,
     methods
 Suggests: 
     testthat (>= 3.0.0)

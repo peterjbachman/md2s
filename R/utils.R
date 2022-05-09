@@ -57,13 +57,13 @@ check.cor <- function(z.run) {
 check.cor.X <- function(z.run) {
   z.run <- my.norm(z.run - mean(z.run))
   if (nrow(X) < ncol(X)) wX <- as.vector(XXprime %*% z.run) else wX <- as.vector(X %*% (t(X) %*% z.run))
-  var(wX)
+  stats::var(wX)
 }
 
 check.cor.y <- function(z.run) {
   z.run <- my.norm(z.run - mean(z.run))
   if (nrow(y) < ncol(y)) wy <- as.vector(yyprime %*% z.run) else wy <- as.vector(y %*% (t(y) %*% z.run))
-  var(wy)
+  stats::var(wy)
 }
 
 ## Checks the correlation and outputs it?
@@ -71,7 +71,7 @@ check.cor.y <- function(z.run) {
 check.cor <- function(z.run) {
   wX <- as.vector(((X1) %*% t(X1)) %*% z.run)
   wy <- as.vector(((y1) %*% t(y1)) %*% z.run)
-  cov(wX, wy)
+  stats::cov(wX, wy)
 }
 
 # `make.int` standardizes the rows (columns) of a matrix such that each
@@ -152,5 +152,5 @@ dubcent.impute <- function(X) {
 ## No clue yet
 make.norm <- function(x) {
   edf <- sapply(x, FUN = function(z) sum(x <= z)) / (length(x) + 1)
-  qnorm(edf)
+  stats::qnorm(edf)
 }

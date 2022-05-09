@@ -24,10 +24,8 @@
 #' \item{proportionX}{TODO}
 #'
 #' @author Peter Bachman <bachman.p@wustl.edu>, Patrick Edwards <edwards.p@wustl.edu>, and Zion Little <l.zion@wustl.edu>
-#' @seealso \code{\link[md2sPermute]{md2sPermute}}
-#' @rdname md2s
+#' @seealso [md2s::md2sPermute()]
 #' @include md2s.R
-#' @aliases MD2S
 #'
 #' @examples
 #' \dontrun{
@@ -258,25 +256,25 @@ md2s <- function( # List of arguments and descriptions below:
   #   Check for yourself by running:
   #   `as.matrix(Z.mat[,2]) == as.matrix(Z.mat[,apply(Z.mat,2,sd) > 0])`
   #   Everything is `TRUE`. Why do it like this?
-  Z.mat <- as.matrix(Z.mat[, apply(Z.mat, 2, sd) > 0])
+  Z.mat <- as.matrix(Z.mat[, apply(Z.mat, 2, stats::sd) > 0])
 
   # Same as above but for Zy.mat:
-  Zy.mat <- as.matrix(Zy.mat[, apply(Zy.mat, 2, sd) > 0])
+  Zy.mat <- as.matrix(Zy.mat[, apply(Zy.mat, 2, stats::sd) > 0])
 
   # Same as above but for ZX.mat:
-  ZX.mat <- as.matrix(ZX.mat[, apply(ZX.mat, 2, sd) > 0])
+  ZX.mat <- as.matrix(ZX.mat[, apply(ZX.mat, 2, stats::sd) > 0])
 
   # Same as above but for wX.mat:
-  wX.mat <- as.matrix(wX.mat[, apply(wX.mat, 2, sd) > 0])
+  wX.mat <- as.matrix(wX.mat[, apply(wX.mat, 2, stats::sd) > 0])
 
   # Same as above but for wy.mat:
-  wy.mat <- as.matrix(wy.mat[, apply(wy.mat, 2, sd) > 0])
+  wy.mat <- as.matrix(wy.mat[, apply(wy.mat, 2, stats::sd) > 0])
 
   # Same as above but for wXs.mat:
-  wXs.mat <- as.matrix(wXs.mat[, apply(wXs.mat, 2, sd) > 0])
+  wXs.mat <- as.matrix(wXs.mat[, apply(wXs.mat, 2, stats::sd) > 0])
 
   # Same as above but for wys.mat:
-  wys.mat <- as.matrix(wys.mat[, apply(wys.mat, 2, sd) > 0])
+  wys.mat <- as.matrix(wys.mat[, apply(wys.mat, 2, stats::sd) > 0])
 
   # Gives the colnames (i.e., covariate names) from `X` (`y`) to rows of
   #   `wX.mat` (`wy.mat`) and `wXs.mat` (`wys.mat`).
@@ -289,7 +287,7 @@ md2s <- function( # List of arguments and descriptions below:
   # If there are shared covariates, regresses `Z.mat` on `X.c` and assigns
   #   the resulting `lm` object to `beta.out`.
   if (length(X.c) > 0) {
-    beta.out <- lm(Z.mat ~ X.c)
+    beta.out <- stats::lm(Z.mat ~ X.c)
   } else {
     beta.out <- NULL
   }
@@ -349,9 +347,9 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   XXprime <- X %*% t(X)
   yyprime <- y %*% t(y)
 #If dim of these is non-0--so I think if the system is overdetermined, then find generallized inverse.
-  if (length(X.c) > 0) hat.Xc <- ginv(t(X.c) %*% X.c) %*% t(X.c)
-  if (length(X.X) > 0) hat.XX <- ginv(t(X.X) %*% X.X) %*% t(X.X)
-  if (length(X.y) > 0) hat.Xy <- ginv(t(X.y) %*% X.y) %*% t(X.y)
+  if (length(X.c) > 0) hat.Xc <- MASS::ginv(t(X.c) %*% X.c) %*% t(X.c)
+  if (length(X.X) > 0) hat.XX <- MASS::ginv(t(X.X) %*% X.X) %*% t(X.X)
+  if (length(X.y) > 0) hat.Xy <- MASS::ginv(t(X.y) %*% X.y) %*% t(X.y)
 #So this is telling us which way to solve the system.
   if (init == "svd") {
     ##Whenever we have FALSE passing through, we run singular value decomp to solve. This, I THINK, gets the left singular value decomp.
@@ -361,9 +359,9 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
     }
     ##Okay, yes. Whenever X1 has more cols then rows--underdetermined--make z.x solution from psudeoinverse. Otherwise, use my.norm over the
     ##product of X1 and the pseudoinverse of the crossproduct of X1. I think that this comes from
-    if (nrow(X1) < ncol(X1)) z.x <- irlba(X1, nu = 1, nv = 1)$u[, 1] else z.x <- my.norm(X1 %*% irlba(crossprod(X1), nu = 1, nv = 1)$v[, 1])
+    if (nrow(X1) < ncol(X1)) z.x <- irlba::irlba(X1, nu = 1, nv = 1)$u[, 1] else z.x <- my.norm(X1 %*% irlba::irlba(crossprod(X1), nu = 1, nv = 1)$v[, 1])
     ##Same as above but for y1.
-    if (nrow(y1) < ncol(y1)) z.y <- irlba(y1, nu = 1, nv = 1)$u[, 1] else z.y <- my.norm(y1 %*% irlba(crossprod(y1), nu = 1, nv = 1)$v[, 1])
+    if (nrow(y1) < ncol(y1)) z.y <- irlba::irlba(y1, nu = 1, nv = 1)$u[, 1] else z.y <- my.norm(y1 %*% irlba::irlba(crossprod(y1), nu = 1, nv = 1)$v[, 1])
 
     z <- (z.x + z.y) / 2
     z <- my.norm(z)
@@ -387,30 +385,30 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
       svd1 <- svd(eig.form, nu = 1)
       svd2 <- svd(eig.form2, nu = 1)
     }
-    svd1 <- irlba(eig.form, nu = 1, nv = 1)
-    svd2 <- irlba(eig.form2, nu = 1, nv = 1)
+    svd1 <- irlba::irlba(eig.form, nu = 1, nv = 1)
+    svd2 <- irlba::irlba(eig.form2, nu = 1, nv = 1)
     w1 <- (svd1$u[, 1])
     w2 <- (svd2$u[, 1])
     z.freq1 <- my.norm(X1 %*% w1)
     z.freq2 <- my.norm(y1 %*% w2)
-    z.freq2 <- z.freq2 * sign(cor(z.freq1, z.freq2))
+    z.freq2 <- z.freq2 * sign(stats::cor(z.freq1, z.freq2))
 
     ## Initialize least squares estimates
     if (length(X.c) > 0) {
       z.freq3 <- as.vector(X.c %*% (hat.Xc %*% z))
-      z.freq3 <- z.freq3 * cor(z.freq2, z.freq3)
+      z.freq3 <- z.freq3 * stats::cor(z.freq2, z.freq3)
       z.freq3 <- my.norm(z.freq3)
     }
 
     if (length(X.X) > 0) {
       z.freq3X <- as.vector(X.X %*% (hat.XX %*% z.x))
-      z.freq3X <- z.freq3X * cor(z.freq1, z.freq3X)
+      z.freq3X <- z.freq3X * stats::cor(z.freq1, z.freq3X)
       z.freq3X <- my.norm(z.freq3X)
     }
 
     if (length(X.y) > 0) {
       z.freq3y <- as.vector(X.y %*% (hat.Xy %*% z.y))
-      z.freq3y <- z.freq3y * cor(z.freq2, z.freq3y)
+      z.freq3y <- z.freq3y * stats::cor(z.freq2, z.freq3y)
       z.freq3y <- my.norm(z.freq3y)
     }
 
@@ -419,7 +417,7 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
     cor.last <- check.cor(z)
 
     z.last <- z
-    alpha.min <- optimize(alpha.func1, lower = -5, upper = 5, maximum = TRUE)$max
+    alpha.min <- stats::optimize(alpha.func1, lower = -5, upper = 5, maximum = TRUE)$max
     p1 <- exp(alpha.min)
     p1 <- p1 / (1 + p1)
     z <- scale(p1 * z.freq1 + (1 - p1) * z.freq2)
@@ -428,10 +426,10 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
 
     ## Update with covariates
     if (length(X.c) > 0) {
-      lm.z <- lm(z ~ z.freq3)
+      lm.z <- stats::lm(z ~ z.freq3)
       z.fit3 <- my.norm(lm.z$fit)
       z.res3 <- my.norm(lm.z$res)
-      alpha.min <- optimize(alpha.func2, lower = -5, upper = 5, maximum = TRUE)$max
+      alpha.min <- stats::optimize(alpha.func2, lower = -5, upper = 5, maximum = TRUE)$max
       p1 <- exp(alpha.min)
       p1 <- p1 / (1 + p1)
       z <- scale(p1 * z.fit3 + (1 - p1) * z.res3)
@@ -439,10 +437,10 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
     }
 
     if (length(X.X) > 0) {
-      lm.z <- lm(z.x ~ z.freq3X)
+      lm.z <- stats::lm(z.x ~ z.freq3X)
       z.fit3 <- my.norm(lm.z$fit)
       z.res3 <- my.norm(lm.z$res)
-      alpha.min <- optimize(alpha.func2.X, lower = -5, upper = 5, maximum = TRUE)$max
+      alpha.min <- stats::optimize(alpha.func2.X, lower = -5, upper = 5, maximum = TRUE)$max
       p1 <- exp(alpha.min)
       p1 <- p1 / (1 + p1)
       z.x <- scale(p1 * z.fit3 + (1 - p1) * z.res3)
@@ -450,10 +448,10 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
     }
 
     if (length(X.y) > 0) {
-      lm.z <- lm(z.y ~ z.freq3y)
+      lm.z <- stats::lm(z.y ~ z.freq3y)
       z.fit3 <- my.norm(lm.z$fit)
       z.res3 <- my.norm(lm.z$res)
-      alpha.min <- optimize(alpha.func2.y, lower = -5, upper = 5, maximum = TRUE)$max
+      alpha.min <- stats::optimize(alpha.func2.y, lower = -5, upper = 5, maximum = TRUE)$max
       p1 <- exp(alpha.min)
       p1 <- p1 / (1 + p1)
       z.y <- scale(p1 * z.fit3 + (1 - p1) * z.res3)
@@ -488,16 +486,16 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
     Xlessz <- rm.z(X)
     ylessz <- rm.z(y)
 
-    z.x.try <- my.norm(irlba(Xlessz, nu = 1, nv = 1)$u[, 1])
-    z.y.try <- my.norm(irlba(ylessz, nu = 1, nv = 1)$u[, 1])
+    z.x.try <- my.norm(irlba::irlba(Xlessz, nu = 1, nv = 1)$u[, 1])
+    z.y.try <- my.norm(irlba::irlba(ylessz, nu = 1, nv = 1)$u[, 1])
 
     if (i == 1) {
       z.x <- z.x.try
       z.y <- z.y.try
     }
     if (i > 1) {
-      z.x <- z.x.try * sign(cor(z.x, z.x.try))
-      z.y <- z.y.try * sign(cor(z.y, z.y.try))
+      z.x <- z.x.try * sign(stats::cor(z.x, z.x.try))
+      z.y <- z.y.try * sign(stats::cor(z.y, z.y.try))
     }
     z.x <- my.norm(z.x)
     z.y <- my.norm(z.y)
@@ -505,13 +503,13 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
     w.Xs <- my.norm(t(z) %*% X1)
     w.ys <- my.norm(t(z) %*% y1)
 
-    if (sim) print(c(cor(z, z.true), cor(z.x, zX.true), cor(z.y, zy.true)))
+    if (sim) print(c(stats::cor(z, z.true), stats::cor(z.x, zX.true), stats::cor(z.y, zy.true)))
   }
 
 
   Xc.out <- NULL
   if (length(X.c) > 0) {
-    Xc.out <- lm(z ~ X.c)$coef[-1]
+    Xc.out <- stats::lm(z ~ X.c)$coef[-1]
   }
 
   output <- list("z" = z, "z.X" = z.x, "z.y" = z.y, "w.Xs" = w.Xs, "w.ys" = w.ys, "beta.z" = Xc.out, "proportionX" = p1.f)

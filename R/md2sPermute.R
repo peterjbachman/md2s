@@ -22,10 +22,11 @@
 #' \item{fpath}{Designated file path for the result}
 #'
 #' @author Cecilia Y. Sui and Evan E. Jo: \email{c.sui@@wustl.edu} \email{ejo@wustl.edu}
-#' @seealso \code{\link[md2s]{md2s}}
+#' @seealso [md2s::md2s()]
 #' @rdname md2sPermute
 #' @include md2sPermute.R
 #' @aliases md2spermute
+#' @importFrom foreach %dopar%
 #'
 #' @examples
 #' \dontrun{
@@ -58,23 +59,23 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
       ## -------------------------
       ## Create z.s y z2.s
       ## -------------------------
-      z1 <- rnorm(n)
-      z2 <- rnorm(n)
+      z1 <- stats::rnorm(n)
+      z2 <- stats::rnorm(n)
       zs.true <- cbind(z1, z2)
-      zX.true <- cbind(rnorm(n), rnorm(n), rnorm(n))
-      zy.true <- cbind(rnorm(n), rnorm(n))
+      zX.true <- cbind(stats::rnorm(n), stats::rnorm(n), stats::rnorm(n))
+      zy.true <- cbind(stats::rnorm(n), stats::rnorm(n))
 
-      bsX.true <- cbind(rnorm(kX), rnorm(kX))
-      bX.true <- cbind(rnorm(kX), rnorm(kX), rnorm(kX))
-      bsy.true <- cbind(rnorm(ky), rnorm(ky))
-      by.true <- cbind(rnorm(ky), rnorm(ky))
+      bsX.true <- cbind(stats::rnorm(kX), stats::rnorm(kX))
+      bX.true <- cbind(stats::rnorm(kX), stats::rnorm(kX), stats::rnorm(kX))
+      bsy.true <- cbind(stats::rnorm(ky), stats::rnorm(ky))
+      by.true <- cbind(stats::rnorm(ky), stats::rnorm(ky))
 
       dw.z <- diag(c(2, 1))
       dw.y <- diag(c(4, 2))
       dw.X <- diag(c(4, 2, 2))
 
-      X1 <- zs.true %*% dw.z %*% t(bsX.true) + zX.true %*% dw.X %*% t(bX.true) + 2 * matrix(rnorm(n * kX), nr = n)
-      y1 <- zs.true %*% dw.z %*% t(bsy.true) + zy.true %*% dw.y %*% t(by.true) + 2 * matrix(rnorm(n * ky), nr = n)
+      X1 <- zs.true %*% dw.z %*% t(bsX.true) + zX.true %*% dw.X %*% t(bX.true) + 2 * matrix(stats::rnorm(n * kX), nrow = n)
+      y1 <- zs.true %*% dw.z %*% t(bsy.true) + zy.true %*% dw.y %*% t(by.true) + 2 * matrix(stats::rnorm(n * ky), nrow = n)
 
 
       # Notice here b1 is a MD2S obejct #
@@ -140,7 +141,7 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
 
       results.all <- results.curr
 
-      ran.name <- paste0("./results_Panel_A/output_", round(runif(1), 10) * 1e10, "_Panel_A.RData")
+      ran.name <- paste0("./results_Panel_A/output_", round(stats::runif(1), 10) * 1e10, "_Panel_A.RData")
       save(results.all, file = ran.name)
     }
   }
