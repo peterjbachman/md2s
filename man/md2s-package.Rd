@@ -2,29 +2,18 @@
 % Please edit documentation in R/md2s-package.R
 \docType{package}
 \name{md2s-package}
-\alias{md2s}
 \alias{md2s-package}
-\title{md2s: Multi-Dataset Multidimensional Scaling}
+\title{Multi-Dataset Multidimensional Scaling}
 \description{
-What the package does (one paragraph).
+The MD2S package computes a latent factor common to two matrices as well
+as an idiosyncratic factor unique to each. In addition, it offers a flexible
+modeling strategy that permits the scaled locations to be a function of
+covariates, and efficient implementation allows for inference through
+resampling
 }
 \author{
-\strong{Maintainer}: Peter Bachman \email{bachman.p@wustl.edu}
+Ted Enamorado \email{ted.enamorado@gmail.com},
 
-Authors:
-\itemize{
-  \item Ted Enamorado \email{ted@wustl.edu}
-  \item Gabriel López-Moctezuma \email{glmoctezuma@caltech.edu}
-  \item Marc Ratkovic \email{ratkovic@princeton.edu}
+Maintainer: Peter Bachman \email{bachman.p@wustl.edu}
 }
-
-Other contributors:
-\itemize{
-  \item Patrick Edwards \email{edwards.p@wustl.edu} [contributor]
-  \item Zion Little \email{l.zion@wustl.edu} [contributor]
-  \item Cecilia Sui \email{c.sui@wustl.edu} [contributor]
-  \item Evan Jo \email{ejo@wustl.edu} [contributor]
-}
-
-}
-\keyword{internal}
+\keyword{package}

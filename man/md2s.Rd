@@ -2,7 +2,6 @@
 % Please edit documentation in R/md2s.R
 \name{md2s}
 \alias{md2s}
-\alias{MD2S}
 \title{md2s}
 \usage{
 md2s(
@@ -59,7 +58,7 @@ md2s()
 
 }
 \seealso{
-\code{\link[md2sPermute]{md2sPermute}}
+\code{\link[=md2sPermute]{md2sPermute()}}
 }
 \author{
 Peter Bachman \href{mailto:bachman.p@wustl.edu}{bachman.p@wustl.edu}, Patrick Edwards \href{mailto:edwards.p@wustl.edu}{edwards.p@wustl.edu}, and Zion Little \href{mailto:l.zion@wustl.edu}{l.zion@wustl.edu}
