@@ -29,9 +29,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' md2Spermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)
+#' md2sPermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)
 #' }
 #'
+#' @export
 md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
   if (exists("out.all")) {
     rm(out.all)

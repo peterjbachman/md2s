@@ -1,19 +1,40 @@
-## ---------------------------------------------------------------------------------------------------
-##
-## 		Replication Files: MD2S function
-## 		"Scaling Data from Multiple Sources"
-## 		Authors: Ted Enamorado, Gabriel Lopez-Moctezuma, Marc Ratkovic
-##
-## ---------------------------------------------------------------------------------------------------
-
-# TODO irlba functions need to be changed to irlba::fun()
-# TODO MASS Functions need to be changed to MASS::fun()
-
-## Required libraries:
-library(MASS)
-library(irlba)
-
-# SECTION 1 - wowsa this is gonna be fun! ::UpsideDownSmileyFaceEmoji::
+#' md2s
+#'
+#' Multi-Dataset Multidimensional Scaling
+#'
+#'
+#' @param X TODO
+#' @param y TODO
+#' @param X.s TODO
+#' @param X.X TODO
+#' @param X.y TODO
+#' @param init TODO
+#' @param dim Number of dimensions
+#' @param sim TODO
+#' @param tol TODO
+#' @param BIC TODO
+#'
+#' @return An object containing:
+#' \item{z}{TODO}
+#' \item{z.X}{TODO}
+#' \item{z.y}{TODO}
+#' \item{w.Xs}{TODO}
+#' \item{w.ys}{TODO}
+#' \item{beta.z}{TODO}
+#' \item{proportionX}{TODO}
+#'
+#' @author Peter Bachman <bachman.p@wustl.edu>, Patrick Edwards <edwards.p@wustl.edu>, and Zion Little <l.zion@wustl.edu>
+#' @seealso \code{\link[md2sPermute]{md2sPermute}}
+#' @rdname md2s
+#' @include md2s.R
+#' @aliases MD2S
+#'
+#' @examples
+#' \dontrun{
+#' md2s()
+#' }
+#'
+#' @export
 
 md2s <- function( # List of arguments and descriptions below:
                  X, # N x K_1 dataset m = 1 of realized outcomes.
