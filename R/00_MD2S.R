@@ -292,6 +292,7 @@ MD2S <- function( # List of arguments and descriptions below:
   return(output)
 }
 
+#I think that this is getting some inner product space. It's using methods to compute solutions to an underdetermined system. 
 MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived from X.
                        y0, # Must be the double-centered/scaled matrix derived from y.
                        X.c.0 = NULL, # covariates associated with shared subspace.
@@ -312,14 +313,23 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   X.X <- X.X.0
   X.y <- X.y.0
 
+ ##standardize what's pased through, that's it. 
+ ## Give input
   my.norm <- function(x) {
+    #As vec
     x <- as.vector(x)
+    #Norm each entry to mean
     x <- x - mean(x)
+    #standardize by dividing above difference by the square root of the sum of entries squared
     (x / sum(x^2)^.5)
   }
+  ##Input optional covariates for explaining scaled locations in the shared subspace
   cleanup <- function(X.c) {
+    #If dim of X.c is greater than 0, then...
     if (length(X.c) > 0) {
+      #apply my.norm then, 
       X.c <- apply(X.c, 2, FUN = function(x) x - mean(x))
+      #get square of col means greater than below number. Then, store as X.c            
       X.c <- X.c[, colMeans(X.c^2) > 1e-10]
     }
     X.c
@@ -329,25 +339,30 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   X.y <- cleanup(X.y)
 
 
-  ## Declare and initialize
+  ## Declare and initialize, same as above. 
   n <- nrow(X)
   X1 <- X
   y1 <- y
   z.x <- z.y <- z <- rep(1, n)
 
+#Okay, so I THINK this is getting the generalized inverse                   
   XXprime <- X %*% t(X)
   yyprime <- y %*% t(y)
-
+#If dim of these is non-0--so I think if the system is overdetermined, then find generallized inverse. 
   if (length(X.c) > 0) hat.Xc <- ginv(t(X.c) %*% X.c) %*% t(X.c)
   if (length(X.X) > 0) hat.XX <- ginv(t(X.X) %*% X.X) %*% t(X.X)
   if (length(X.y) > 0) hat.Xy <- ginv(t(X.y) %*% X.y) %*% t(X.y)
-
+#So this is telling us which way to solve the system. 
   if (init == "svd") {
+    ##Whenever we have FALSE passing through, we run singular value decomp to solve. This, I THINK, gets the left singular value decomp. 
     if (FALSE) {
       z.x <- svd(X1, nu = 1)$u[, 1]
       z.y <- svd(y1, nu = 1)$u[, 1]
     }
+    ##Okay, yes. Whenever X1 has more cols then rows--underdetermined--make z.x solution from psudeoinverse. Otherwise, use my.norm over the 
+    ##product of X1 and the pseudoinverse of the crossproduct of X1. I think that this comes from 
     if (nrow(X1) < ncol(X1)) z.x <- irlba(X1, nu = 1, nv = 1)$u[, 1] else z.x <- my.norm(X1 %*% irlba(crossprod(X1), nu = 1, nv = 1)$v[, 1])
+    ##Same as above but for y1.   
     if (nrow(y1) < ncol(y1)) z.y <- irlba(y1, nu = 1, nv = 1)$u[, 1] else z.y <- my.norm(y1 %*% irlba(crossprod(y1), nu = 1, nv = 1)$v[, 1])
 
     z <- (z.x + z.y) / 2
@@ -359,7 +374,7 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
   loglik <- 0
 
   # SECTION 2
-
+##I think this measures the correlation between true and estimated values over 1000 simulations per combo of N and K_1. I'm confident that this is making the graphics that we see in the appendix. 
   for (i in 1:1000) {
     rm.zX <- function(x) fastres(x, z.x)
     rm.zy <- function(x) fastres(x, z.y)
@@ -607,13 +622,16 @@ tfidf <- function(mat) {
 
 ## Normalizing function?
 # `my.norm` creates z-scores for every value of input vector. - Patrick
+#I'm not sure that it does. It's dividing by the square root of the sum of entries squared. It's just dividing by a common value that surpresses spread. 
+#I think that if this were creating a z-value, then we would have to multiply by root(n) and divide by some sd parameter. 
 my.norm <- function(x) {
   x <- as.vector(x)
   x <- x - mean(x)
   (x / sum(x^2)^.5)
 }
 
-## No clue yet
+##  impute missing values by iteratively double-centering the matrix. All na values are set to 0.
+#  Note that the method choice for imputing values need not be of this method: Any method can be used.         
 dubcent.impute <- function(X) {
   X <- as.matrix(X)
   miss.mat <- is.na(X)
