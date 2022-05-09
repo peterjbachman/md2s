@@ -22,18 +22,17 @@
 #' \item{fpath}{Designated file path for the result}
 #'
 #' @author Cecilia Y. Sui and Evan E. Jo: \email{c.sui@@wustl.edu} \email{ejo@wustl.edu}
-#' @seealso \code{\link[MD2S]{MD2S}}
-#' @rdname MD2Spermute
-#' @include MD2Spermute.R
+#' @seealso \code{\link[md2s]{md2s}}
+#' @rdname md2sPermute
+#' @include md2sPermute.R
 #' @aliases md2spermute
 #'
 #' @examples
 #' \dontrun{md2Spermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)}
 
 
-md2Spermute <- function(kX.num, n, ky, nsims, nperm, nboot){
+md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot){
 
-    source('./R/00_MD2S.R')
     if(exists("out.all")){rm(out.all)}
 
     kX.num <- 100
@@ -75,26 +74,22 @@ md2Spermute <- function(kX.num, n, ky, nsims, nperm, nboot){
 
 
         # Notice here b1 is a MD2S obejct #
-        b1 <- MD2S(X=(X1),y=(y1), dim = 5)
+        b1 <- md2s(X=(X1),y=(y1), dim = 5)
 
         ################################
         ################################
         ## Try permutation
         ################################
         ################################
-        require('Matrix')
-        library('foreach')
-        library('itertools')
-        library('doParallel')
 
-        nt <- detectCores()
-        cl <- makeCluster(nt)
-        registerDoParallel(cl)
+        nt <- parallel::detectCores()
+        cl <- parallel::makeCluster(nt)
+        doParallel::registerDoParallel(cl)
 
-        results <- foreach(i = 1:nperm, .export = c('MD2S', 'ginv', 'irlba')) %dopar% {
+        results <- foreach::foreach(i = 1:nperm, .export = c('md2s', 'ginv', 'irlba')) %dopar% {
           X1.perm <- sample.mat(sample.mat(X1)); y1.perm <- sample.mat(sample.mat(y1))
 
-          b1.perm <- MD2S(X = X1.perm, y = y1.perm, dim = 5)
+          b1.perm <- md2s(X = X1.perm, y = y1.perm, dim = 5)
           out <- list("lz" = t(as.matrix(b1.perm$lz)),
                       "lz.X" = t(as.matrix(b1.perm$lz.X)),
                       "lz.y" = t(as.matrix(b1.perm$lz.y))
@@ -102,7 +97,7 @@ md2Spermute <- function(kX.num, n, ky, nsims, nperm, nboot){
           out
         }
 
-        stopCluster(cl)
+        parallel::stopCluster(cl)
 
         lz.run <- lz.X.run <- lz.y.run <- list()
         for(i in 1:length(results)) {

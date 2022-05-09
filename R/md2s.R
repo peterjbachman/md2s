@@ -13,11 +13,9 @@
 library(MASS)
 library(irlba)
 
-source("miscFunctions.R")
-
 # SECTION 1 - wowsa this is gonna be fun! ::UpsideDownSmileyFaceEmoji::
 
-MD2S <- function( # List of arguments and descriptions below:
+md2s <- function( # List of arguments and descriptions below:
                  X, # N x K_1 dataset m = 1 of realized outcomes.
                  # DESCRIPTION: first dataset of realized outcomes for `N` observations and
                  #   `K_1` covariates. Note that `K_1` & `K_2` can differ.
