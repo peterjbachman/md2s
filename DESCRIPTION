@@ -19,6 +19,7 @@ RoxygenNote: 7.1.2
 Collate: 
     '00_MD2S.R'
     'MD2Spermute.R'
+    'utils.R'
 Imports: 
     doParallel,
     foreach,
