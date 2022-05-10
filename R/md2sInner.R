@@ -5,15 +5,12 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
                        X.X.0 = NULL, # covariates associated with X subspace.
                        X.y.0 = NULL, # covariates associated with y subspace.
                        init0 = "svd", # singular value decomposition (no other options?)
-                       sim0 = FALSE, # Indicates whether we're using simulated data (`TRUE` not an option?)
                        tol0 = tol # Convergence/iteration tolerance parameter.
 ) {
   X <- X0
   y <- y0
   X.c <- X.c.0
   init <- init0
-  sim <- sim0
-
   tol <- tol0
 
   X.X <- X.X.0
@@ -191,8 +188,6 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
     z <- my.norm(z)
     w.Xs <- my.norm(t(z) %*% X1)
     w.ys <- my.norm(t(z) %*% y1)
-
-    if (sim) print(c(stats::cor(z, z.true), stats::cor(z.x, zX.true), stats::cor(z.y, zy.true)))
   }
 
 
