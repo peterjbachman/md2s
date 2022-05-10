@@ -238,8 +238,8 @@ if(!exists("out.all")){
 # save files as one
 save(out.all, file = './results_Panel_A/outall_Panel_A.RData')
 
-# remove intermediate files
-for(i in files.all) {
-  file.remove(paste("./results_Panel_A/", i, sep = ""))
-}
+# # remove intermediate files
+# for(i in files.all) {
+#   file.remove(paste("./results_Panel_A/", i, sep = ""))
+# }
 ## ---------------------------------------------------------------------------------------------------
