@@ -35,9 +35,9 @@ check.cor <- function(z.run, option, XXprime, X1, yyprime, y1) {
   if (nrow(X) < ncol(X)) wX <- as.vector(XXprime %*% z.run) else wX <- as.vector(X1 %*% (t(X1) %*% z.run))
   if (nrow(y) < ncol(y)) wy <- as.vector(yyprime %*% z.run) else wy <- as.vector(y1 %*% (t(y1) %*% z.run))
 
-  if (option = "X") {
+  if (option == "X") {
     stats::var(wX)
-  } else if (option = "y") {
+  } else if (option == "y") {
     stats::var(wy)
   } else {
     stats::cov(wX, wy)
