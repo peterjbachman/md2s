@@ -52,3 +52,27 @@ my.norm <- function(x) {
   (x / sum(x^2)^.5)
 }
 # Test with
+
+
+# ------------------------------------------------------
+# Load libraries and set working directory
+# ------------------------------------------------------
+library(devtools)
+library(roxygen2)
+
+# ------------------------------------------------------
+# Set working directory
+# ------------------------------------------------------
+setwd("/Users/ysui/Documents/GitHub")
+
+# ------------------------------------------------------
+# load package
+# ------------------------------------------------------
+current.code <- as.package("md2s")
+# Load all of the functions so you can use them
+load_all(current.code, quiet = F)
+document(current.code, quiet = F) # Make the help files
+# ------------------------------------------------------
+# Test functions
+# ------------------------------------------------------
+test1 <- md2sPermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)
