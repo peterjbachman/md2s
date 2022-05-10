@@ -49,7 +49,7 @@ check.cor <- function(z.run) {
   z.run <- my.norm(z.run - mean(z.run))
   if (nrow(X) < ncol(X)) wX <- as.vector(XXprime %*% z.run) else wX <- as.vector(X1 %*% (t(X1) %*% z.run))
   if (nrow(y) < ncol(y)) wy <- as.vector(yyprime %*% z.run) else wy <- as.vector(y1 %*% (t(y1) %*% z.run))
-  cov(wX, wy)
+  stats::cov(wX, wy)
 }
 
 check.cor.X <- function(z.run) {
