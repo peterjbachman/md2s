@@ -25,43 +25,23 @@ cleanup <- function(X.c) {
   X.c
 }
 
-alpha.func <- function(x, z1, z2) {
+alpha.func <- function(x, z1, z2, option, XXprime, X1, yyprime, y1) {
   p1 <- exp(x) / (1 + exp(x))
-  check.cor(p1 * z1 + (1 - p1) * z2)
+  check.cor(p1 * z1 + (1 - p1) * z2, option = option, XXprime = XXprime, X1 = X1, yyprime = yyprime, y1 = y1)
 }
 
-alpha.func.X <- function(x, z1, z2) {
-  p1 <- exp(x) / (1 + exp(x))
-  check.cor.X(p1 * z1 + (1 - p1) * z2)
-}
-
-alpha.func.y <- function(x, z1, z2) {
-  p1 <- exp(x) / (1 + exp(x))
-  check.cor.y(p1 * z1 + (1 - p1) * z2)
-}
-
-alpha.func1 <- function(x) alpha.func(x, z.freq1, z.freq2)
-alpha.func2 <- function(x) alpha.func(x, z.fit3, z.res3)
-alpha.func2.X <- function(x) alpha.func.X(x, z.fit3, z.res3)
-alpha.func2.y <- function(x) alpha.func.y(x, z.fit3, z.res3)
-
-check.cor <- function(z.run) {
+check.cor <- function(z.run, option, XXprime, X1, yyprime, y1) {
   z.run <- my.norm(z.run - mean(z.run))
   if (nrow(X) < ncol(X)) wX <- as.vector(XXprime %*% z.run) else wX <- as.vector(X1 %*% (t(X1) %*% z.run))
   if (nrow(y) < ncol(y)) wy <- as.vector(yyprime %*% z.run) else wy <- as.vector(y1 %*% (t(y1) %*% z.run))
-  stats::cov(wX, wy)
-}
 
-check.cor.X <- function(z.run) {
-  z.run <- my.norm(z.run - mean(z.run))
-  if (nrow(X) < ncol(X)) wX <- as.vector(XXprime %*% z.run) else wX <- as.vector(X %*% (t(X) %*% z.run))
-  stats::var(wX)
-}
-
-check.cor.y <- function(z.run) {
-  z.run <- my.norm(z.run - mean(z.run))
-  if (nrow(y) < ncol(y)) wy <- as.vector(yyprime %*% z.run) else wy <- as.vector(y %*% (t(y) %*% z.run))
-  stats::var(wy)
+  if (option = "X") {
+    stats::var(wX)
+  } else if (option = "y") {
+    stats::var(wy)
+  } else {
+    stats::cov(wX, wy)
+  }
 }
 
 # Used in md2s

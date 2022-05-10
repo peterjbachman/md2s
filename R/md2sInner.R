@@ -103,7 +103,7 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
     z.last <- z
 
     # Can be streamlined if we use the
-    alpha.min <- stats::optimize(alpha.func1, lower = -5, upper = 5, maximum = TRUE)$max
+    alpha.min <- stats::optimize(alpha.func, lower = -5, upper = 5, maximum = TRUE, z1 = z.freq1, z2 = z.freq2, XXprime = XXprime, X1 = X1, yyprime = yyprime, y1 = y1, option = "")$max
     p1 <- exp(alpha.min)
     p1 <- p1 / (1 + p1)
     z <- scale(p1 * z.freq1 + (1 - p1) * z.freq2)
@@ -115,7 +115,7 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
       lm.z <- stats::lm(z ~ z.freq3)
       z.fit3 <- my.norm(lm.z$fit)
       z.res3 <- my.norm(lm.z$res)
-      alpha.min <- stats::optimize(alpha.func2, lower = -5, upper = 5, maximum = TRUE)$max
+      alpha.min <- stats::optimize(alpha.func, lower = -5, upper = 5, maximum = TRUE, z1 = z.fit3, z2 = z.res3, XXprime = XXprime, X1 = X1, yyprime = yyprime, y1 = y1, option = "")$max
       p1 <- exp(alpha.min)
       p1 <- p1 / (1 + p1)
       z <- scale(p1 * z.fit3 + (1 - p1) * z.res3)
@@ -126,7 +126,7 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
       lm.z <- stats::lm(z.x ~ z.freq3X)
       z.fit3 <- my.norm(lm.z$fit)
       z.res3 <- my.norm(lm.z$res)
-      alpha.min <- stats::optimize(alpha.func2.X, lower = -5, upper = 5, maximum = TRUE)$max
+      alpha.min <- stats::optimize(alpha.func, lower = -5, upper = 5, maximum = TRUE, z1 = z.fit3, z2 = z.res3, XXprime = XXprime, X1 = X1, yyprime = yyprime, y1 = y1, option = "X")$max
       p1 <- exp(alpha.min)
       p1 <- p1 / (1 + p1)
       z.x <- scale(p1 * z.fit3 + (1 - p1) * z.res3)
@@ -137,7 +137,7 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
       lm.z <- stats::lm(z.y ~ z.freq3y)
       z.fit3 <- my.norm(lm.z$fit)
       z.res3 <- my.norm(lm.z$res)
-      alpha.min <- stats::optimize(alpha.func2.y, lower = -5, upper = 5, maximum = TRUE)$max
+      alpha.min <- stats::optimize(alpha.func, lower = -5, upper = 5, maximum = TRUE, z1 = z.fit3, z2 = z.res3, XXprime = XXprime, X1 = X1, yyprime = yyprime, y1 = y1, option = "y")$max
       p1 <- exp(alpha.min)
       p1 <- p1 / (1 + p1)
       z.y <- scale(p1 * z.fit3 + (1 - p1) * z.res3)
