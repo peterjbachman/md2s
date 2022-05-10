@@ -12,7 +12,6 @@ md2s(
   X.y = NULL,
   init = "svd",
   dim = 1,
-  sim = FALSE,
   tol = 1e-06,
   BIC = FALSE
 )
@@ -31,8 +30,6 @@ md2s(
 \item{init}{TODO}
 
 \item{dim}{Number of dimensions}
-
-\item{sim}{TODO}
 
 \item{tol}{TODO}
 

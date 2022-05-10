@@ -19,6 +19,7 @@ RoxygenNote: 7.1.2
 Collate: 
     'md2s-package.R'
     'md2s.R'
+    'md2sInner.R'
     'md2sPermute.R'
     'utils.R'
 Imports: 
