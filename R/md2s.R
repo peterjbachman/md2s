@@ -10,7 +10,6 @@
 #' @param X.y TODO
 #' @param init TODO
 #' @param dim Number of dimensions
-#' @param sim TODO
 #' @param tol TODO
 #' @param BIC TODO
 #'
@@ -63,13 +62,6 @@ md2s <- function( # List of arguments and descriptions below:
                  # [VERIFICATION CHECK NEEDED]
                  dim = 1, # Number of fitted dimensions (from most- to least-explanatory).
                  # (???) Not entirely sure if this is correct interpretation, check (???)
-                 # [VERIFICATION CHECK NEEDED]
-                 sim = FALSE, # `TRUE` if using simulated data (???)
-                 # (???) May need to have "true" values for z.true, zX.true, zy.true in environment. (???)
-                 # Perhaps this part should be removed given that z.true, zX.true, & zy.true
-                 #   are not created in the function, so users cant run `sim = TRUE` unless
-                 #   they have objects named z.true, zX.true, zy.true in their local environment.
-                 #   Alternatively, we could force users to provide true values if `sim = TRUE`.
                  # [VERIFICATION CHECK NEEDED]
                  tol = 1e-6, # TOL = convergence tolerance parameter.
                  # DESCRIPTION: criteria for iteration termination. Iterations terminate
