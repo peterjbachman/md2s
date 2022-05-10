@@ -23,10 +23,6 @@ cleanup <- function(X.c) {
   X.c
 }
 
-rm.zX <- function(x) fastres(x, z.x)
-rm.zy <- function(x) fastres(x, z.y)
-rm.z <- function(x) fastres(x, z)
-
 alpha.func <- function(x, z1, z2) {
   p1 <- exp(x) / (1 + exp(x))
   check.cor(p1 * z1 + (1 - p1) * z2)

@@ -483,8 +483,8 @@ MD2S_inner <- function(X0, # Must be the double-centered/scaled matrix derived f
       }
     }
 
-    Xlessz <- rm.z(X)
-    ylessz <- rm.z(y)
+    Xlessz <- fastres(X, z)
+    ylessz <- fastres(y, z)
 
     z.x.try <- my.norm(irlba::irlba(Xlessz, nu = 1, nv = 1)$u[, 1])
     z.y.try <- my.norm(irlba::irlba(ylessz, nu = 1, nv = 1)$u[, 1])
