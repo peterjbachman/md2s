@@ -19,16 +19,14 @@ RoxygenNote: 7.1.2
 Collate: 
     'md2s-package.R'
     'md2s.R'
+    'md2sInner.R'
     'md2sPermute.R'
     'utils.R'
 Imports: 
     doParallel,
     foreach,
     irlba,
-    itertools,
     MASS,
-    Matrix,
-    methods
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

@@ -2,3 +2,4 @@
 
 export(md2s)
 export(md2sPermute)
+importFrom(foreach,"%dopar%")
