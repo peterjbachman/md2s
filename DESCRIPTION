@@ -27,6 +27,10 @@ Imports:
     foreach,
     irlba,
     MASS,
+    parallel,
+    Matrix,
+    itertools,
+    doSNOW
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

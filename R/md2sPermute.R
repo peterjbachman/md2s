@@ -33,29 +33,18 @@
 #' md2sPermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)
 #' }
 #'
+#'
+#'
+#'
+#'
+
 #' @export
-md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
-  if (exists("out.all")) {
-    rm(out.all)
-  }
-
-  kX.num <- 100
-  n <- 50
-  ky <- 40
-  ## the line below comes from Run.R for the simulation
-  ## Number of simulations; permutations; and bootstap samples
-  nsims <- nperm <- nboot <- 10 # originally 200, too long to run :)
-
-
-  ##  tmp code setup
-  # kX = 100
-  # j = 1
-
+md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot, fpath = ".") {
+  
   ## Generate Data
   results.all <- NULL
   for (j in 1:nsims) {
     for (kX in c(kX.num)) {
-
       ## -------------------------
       ## Create z.s y z2.s
       ## -------------------------
@@ -77,24 +66,27 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
       X1 <- zs.true %*% dw.z %*% t(bsX.true) + zX.true %*% dw.X %*% t(bX.true) + 2 * matrix(stats::rnorm(n * kX), nrow = n)
       y1 <- zs.true %*% dw.z %*% t(bsy.true) + zy.true %*% dw.y %*% t(by.true) + 2 * matrix(stats::rnorm(n * ky), nrow = n)
 
-
+      
       # Notice here b1 is a MD2S obejct #
       b1 <- md2s(X = (X1), y = (y1), dim = 5)
 
       ################################
-      ################################
       ## Try permutation
-      ################################
       ################################
 
       nt <- parallel::detectCores()
       cl <- parallel::makeCluster(nt)
-      doParallel::registerDoParallel(cl)
 
-      results <- foreach::foreach(i = 1:nperm, .export = c("md2s", "ginv", "irlba")) %dopar% {
+      # delete ginv if getting errors on this
+      parallel::clusterExport(cl, c("md2s", "irlba", "ginv", "sample.mat",
+                                    "make.int", "fastres", "md2sInner",
+                                    "cleanup", "my.norm", "check.cor", "alpha.func"))
+      doParallel::registerDoParallel(cl)
+      out <- Matrix::Matrix()
+
+      results <- foreach::foreach(i = 1:nperm, .packages = "MASS", "parallel") %dopar% {
         X1.perm <- sample.mat(sample.mat(X1))
         y1.perm <- sample.mat(sample.mat(y1))
-
         b1.perm <- md2s(X = X1.perm, y = y1.perm, dim = 5)
         out <- list(
           "lz" = t(as.matrix(b1.perm$lz)),
@@ -104,6 +96,7 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
         out
       }
 
+      foreach::registerDoSEQ()
       parallel::stopCluster(cl)
 
       lz.run <- lz.X.run <- lz.y.run <- list()
@@ -130,18 +123,15 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
       pvals.X <- pz2.X
       pvals.y <- pz2.y
 
-      pvals.s
-      pvals.X
-      pvals.y
-
       scenario2 <- 1
       results.curr <- c(n, kX, scenario2, pvals.s, pvals.X, pvals.y)
 
       names(results.curr) <- c("N", "kX", "scen2", paste("ps_", 1:5, sep = ""), paste("pX_", 1:5, sep = ""), paste("py_", 1:5, sep = ""))
 
       results.all <- results.curr
-
-      ran.name <- paste0("./results_Panel_A/output_", round(stats::runif(1), 10) * 1e10, "_Panel_A.RData")
+      
+      # return(results.all)
+      ran.name <- paste0(fpath, round(stats::runif(1), 10) * 1e10, "_permtest.RData")
       save(results.all, file = ran.name)
     }
   }

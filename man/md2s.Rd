@@ -53,6 +53,9 @@ Multi-Dataset Multidimensional Scaling
 md2s()
 }
 
+
+
+
 }
 \seealso{
 \code{\link[=md2sPermute]{md2sPermute()}}
