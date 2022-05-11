@@ -244,7 +244,7 @@ md2s <- function( # List of arguments and descriptions below:
     #   or the number of latent dimensions of the idiosyncratic subspace Q_{(m)}.
     # (From paper) "L_S is Q_{(m)} ? Q_{(m)} non-negative, diagonal matrix of
     #   loadings for the idiosyncratic subspaces" (pg. 216).
-    lz.X[i] < -sum((t(X1) %*% b0$z.X)^2)
+    lz.X[i] <- sum((t(X1) %*% b0$z.X)^2)
     lz.y[i] <- sum((t(y1) %*% b0$z.y)^2)
   } # For-loop repeats for every dimension estimated (i.e., when `dim` > 1)
 

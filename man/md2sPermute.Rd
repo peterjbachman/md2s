@@ -5,7 +5,7 @@
 \alias{md2spermute}
 \title{Permutation Test}
 \usage{
-md2sPermute(kX.num, n, ky, nsims, nperm, nboot)
+md2sPermute(kX.num, n, ky, nsims, nperm, nboot, fpath = ".")
 }
 \arguments{
 \item{kX.num}{K(2) as defined in the paper.}
@@ -20,9 +20,9 @@ md2sPermute(kX.num, n, ky, nsims, nperm, nboot)
 
 \item{nboot}{The number of bootstraps to be performed. Default is set to 200.}
 
-\item{d}{number of dimensions}
-
 \item{fpath}{Designated file path where we will store the results}
+
+\item{d}{number of dimensions}
 }
 \value{
 An object containing:

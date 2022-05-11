@@ -99,7 +99,7 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
     z <- my.norm(z)
 
     # THIS NEEDS TO BE
-    cor.last <- check.cor(z, XXprime = XXprime, X1 = X1, yyprime = yyprime, y1 = y1, option =" ")
+    cor.last <- check.cor(z, XXprime = XXprime, X1 = X1, yyprime = yyprime, y1 = y1, option = "")
 
     z.last <- z
 
