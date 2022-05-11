@@ -80,17 +80,17 @@ md2s <- function( # List of arguments and descriptions below:
   n <- nrow(X)
 
   # Creates three `Z` column vectors of 1s with length = number of rows in X.
-  #   (???) Correspond to the shared (Z_S) & idiosyncratic (Z_{(M)}) subspaces.
+  #   Correspond to the shared (Z_S) & idiosyncratic (Z_{(M)}) subspaces.
   #     (from paper): Z_S contains latent locations in the shared subspace in columns for each `dim` dimensions (in this case, 1).
   #     (from paper): Z_{(M)} contains latent locations in the idiosyncratic subspace for `dim` latent dimensions (in this case, 1).
   ZX.mat <- Zy.mat <- Z.mat <- as.matrix(rep(1, n))
 
 
-  # Creates one (row?) vector of 1s with length = K_1 (i.e., `ncol(X)`).
+  # Creates one vector of 1s with length = $K_1$, the number of covariates in first matrix of realized outcomes $X$ (i.e., `ncol(X)`).
   #   (from paper): W_{(M)} is matrix of shared factors for the shares subspace for the dataset Y_{(M)}.
   wXs.mat <- wX.mat <- rep(1, ncol(X))
 
-  # Creates one (row?) vector of 1s with length = K_2 (i.e., `ncol(y)`).
+  # Creates one vector of 1s with length = $K_2$, the number of covariates in second matrix of realized outcomes $y$ (i.e., `ncol(y)`).
   #   (from paper): W_{(M)} is matrix of shared factors for the shared subspace for the dataset Y_{(M)}.
   wys.mat <- wy.mat <- rep(1, ncol(y))
 
@@ -103,11 +103,9 @@ md2s <- function( # List of arguments and descriptions below:
   proportionX <- lz <- lz.X <- lz.y <- NULL
 
   # Double-center `X1` and `y1`:
-  #   "we preprocess the matrices by double-centering them, so that the row-mean,
-  #   column-mean, and grand mean is zero" (pg. 216 of paper)
-  # BACKGROUND: the `make.int` function is defined far below.
-  # `make.int` standardizes the rows (columns) of a matrix such that each
-  #   row (column) of the matrix has the same standard deviation & mean.
+  #   "we preprocess the matrices by double-centering them, so that the row-mean, column-mean, and grand mean is zero" (pg. 216 of paper).
+  #   BACKGROUND: the `make.int` functio
+  # `make.int` standardizes the rows (columns) of a matrix such that each row (column) of the matrix has the same standard deviation & mean.
   X1 <- X - make.int(X)
   y1 <- y - make.int(y)
 
