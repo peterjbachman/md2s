@@ -5,7 +5,16 @@
 \alias{md2spermute}
 \title{Permutation Test}
 \usage{
-md2sPermute(kX.num, n, ky, nsims, nperm, nboot, fpath = ".")
+md2sPermute(
+  kX.num = 100,
+  n = 50,
+  ky = 40,
+  nsims,
+  nperm,
+  nboot,
+  fpath = ".",
+  sim = TRUE
+)
 }
 \arguments{
 \item{kX.num}{K(2) as defined in the paper.}
