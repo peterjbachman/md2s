@@ -37,7 +37,7 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
                        X.X.0 = NULL, # covariates associated with X subspace.
                        X.y.0 = NULL, # covariates associated with y subspace.
                        init0 = "svd", # singular value decomposition (no other options?)
-                       tol0 = NULL # Convergence/iteration tolerance parameter.
+                       tol0 = 1e-6 # Convergence/iteration tolerance parameter.
 ) {
   X <- X0
   y <- y0
