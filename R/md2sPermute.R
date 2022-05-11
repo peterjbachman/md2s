@@ -40,7 +40,7 @@
 
 #' @export
 md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot, fpath = ".") {
-  
+
   ## Generate Data
   results.all <- NULL
   for (j in 1:nsims) {
@@ -66,7 +66,7 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot, fpath = ".") {
       X1 <- zs.true %*% dw.z %*% t(bsX.true) + zX.true %*% dw.X %*% t(bX.true) + 2 * matrix(stats::rnorm(n * kX), nrow = n)
       y1 <- zs.true %*% dw.z %*% t(bsy.true) + zy.true %*% dw.y %*% t(by.true) + 2 * matrix(stats::rnorm(n * ky), nrow = n)
 
-      
+
       # Notice here b1 is a MD2S obejct #
       b1 <- md2s(X = (X1), y = (y1), dim = 5)
 
@@ -78,7 +78,7 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot, fpath = ".") {
       cl <- parallel::makeCluster(nt)
 
       # delete ginv if getting errors on this
-      parallel::clusterExport(cl, c("md2s", "irlba", "ginv", "sample.mat",
+      parallel::clusterExport(cl, c("md2s", "irlba", "sample.mat",
                                     "make.int", "fastres", "md2sInner",
                                     "cleanup", "my.norm", "check.cor", "alpha.func"))
       doParallel::registerDoParallel(cl)
@@ -129,7 +129,7 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot, fpath = ".") {
       names(results.curr) <- c("N", "kX", "scen2", paste("ps_", 1:5, sep = ""), paste("pX_", 1:5, sep = ""), paste("py_", 1:5, sep = ""))
 
       results.all <- results.curr
-      
+
       # return(results.all)
       ran.name <- paste0(fpath, round(stats::runif(1), 10) * 1e10, "_permtest.RData")
       save(results.all, file = ran.name)
