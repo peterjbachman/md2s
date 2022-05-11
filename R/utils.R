@@ -1,7 +1,7 @@
 # Purely internal functions, for use within md2s and md2sPermute
 
 # Used in md2sInner, md2s,
-##standardize what's pased through, that's it.
+##standardize what's passed through, that's it.
 ## Give input
 my.norm <- function(x) {
   #As vec
@@ -58,7 +58,7 @@ make.int <- function(X) {
 fastres <- function(x, z) {
   z <- cbind(1, z)
   #   NOTE: these following steps create fitted values.
-  # If there are fewer rows than columns
+  #   If there are fewer rows than columns
   if (nrow(z) <= ncol(z)) fits <- z %*% MASS::ginv(t(z) %*% z) %*% (t(z) %*% x)
   # If there are more columns than rows
   if (nrow(z) > ncol(z)) fits <- z %*% (MASS::ginv(t(z) %*% z) %*% t(z) %*% x)

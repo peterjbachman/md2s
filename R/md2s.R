@@ -3,15 +3,15 @@
 #' Multi-Dataset Multidimensional Scaling
 #'
 #'
-#' @param X TODO
-#' @param y TODO
-#' @param X.s TODO
-#' @param X.X TODO
-#' @param X.y TODO
-#' @param init TODO
-#' @param dim Number of dimensions
-#' @param tol TODO
-#' @param BIC TODO
+#' @param X First matrix of realized outcomes $(m = 1)$ for $N$ observations and $K_1$ covariates; dimensions $N \times K_1$.
+#' @param y Second matrix of realized outcomes $(m = 2)$ for $N$ observations and $K_2$ covariates; dimensions $N \times K_1$
+#' @param X.s Optional matrix of covariates for estimating scaled locations in the shared subspace.
+#' @param X.X Optional matrix of covariates for estimating scaled locations in the idiosyncratic subspace of `X`.
+#' @param X.y Optional matrix of covariates for estimating scaled locations in the idiosyncratic subspace of `y`.
+#' @param init INOPERABLE. Matrix initialization method.
+#' @param dim Number of dimensions to be estimated by the model (from most- to least-explanatory).
+#' @param tol Iteration tolerance threshold. Criteria for termination of iteration.
+#' @param BIC INOPERABLE. Bayesian Information Criterion.
 #'
 #' @return An object containing:
 #' \item{z}{TODO}
@@ -38,43 +38,40 @@
 #' @export
 
 md2s <- function( # List of arguments and descriptions below:
-                 X, # N x K_1 dataset m = 1 of realized outcomes.
-                 # DESCRIPTION: first dataset of realized outcomes for `N` observations and
-                 #   `K_1` covariates. Note that `K_1` & `K_2` can differ.
-                 # EXAMPLE: roll-call votes for `N` legislators with `K_1` covariates.
-                 y, # N x K_2 dataset m = 2 of realized outcomes.
-                 # DESCRIPTION: first dataset of realized outcomes for `N` observations and
-                 #   `K_2` covariates. Note that `K_1` & `K_2` can differ.
-                 # EXAMPLE: floor speech text for `N` legislators with `K_2` covariates.
+                 X, # $N \mult K_1$ dataset $m = 1$ of realized outcomes.
+                 #  DESCRIPTION: first dataset of realized outcomes for `N` observations and `K_1` covariates.
+                 #    Note: $K_1$ & $K_2$ can differ.
+                 #  EXAMPLE: roll-call votes for `N` legislators with `K_1` covariates.
+                 
+                 y, # $N \mult K_2$ dataset $m = 2$ of realized outcomes.
+                 #  DESCRIPTION: second dataset of realized outcomes for `N` observations and `K_2` covariates.
+                 #    Note: `K_1` & `K_2` can differ.
+                 #  EXAMPLE: floor speech text for `N` legislators with `K_2` covariates.
+                 
                  X.s = NULL, # Optional covariates for estimating scaled locations in shared subspace.
-                 # DESCRIPTION: dataset of covariates that explain observations' scaled
-                 #   locations in shared subspace.
-                 # EXAMPLE: covariates that explain legislators' general ideological placements.
+                 #  DESCRIPTION: dataset of covariates that explain observations' scaled locations in shared subspace.
+                 #  EXAMPLE: covariates that explain legislators' general ideological placements.
+                 
                  X.X = NULL, # Optional covariates for estimating scaled locations in idiosyncratic subspace of X.
-                 # DESCRIPTION: dataset of covariates that explain observations' scaled
-                 #   locations in idiosyncratic subspace of X.
-                 # EXAMPLE: covariates that explain legislators' ideological placements as
-                 #   determined by roll call votes.
+                 #  DESCRIPTION: dataset of covariates that explain observations' scaled locations in idiosyncratic subspace of X.
+                 #  EXAMPLE: covariates that explain legislators' ideological placements as determined by roll call votes.
+                 
                  X.y = NULL, # Optional covariates for estimating scaled locations in idiosyncratic subspace of y.
-                 # DESCRIPTION: dataset of covariates that explain observations' scaled
-                 #   locations in idiosyncratic subspace of y.
-                 # EXAMPLE: covariates that explain legislators' ideological placements as
-                 #   determined by floor speech text.
-                 init = "svd", # Initialize???
-                 # NOTE: Default is SVD = Singular Value Decomposition of a matrix.
-                 # NOTE: Function permits no other argument besides default "svd".
-                 # [VERIFICATION CHECK NEEDED]
-                 dim = 1, # Number of fitted dimensions (from most- to least-explanatory).
-                 # (???) Not entirely sure if this is correct interpretation, check (???)
-                 # [VERIFICATION CHECK NEEDED]
+                 #  DESCRIPTION: dataset of covariates that explain observations' scaled locations in idiosyncratic subspace of y.
+                 #  EXAMPLE: covariates that explain legislators' ideological placements as determined by floor speech text.
+                 
+                 init = "svd", # INOPERABLE. Matrix initialization method.
+                 #  NOTE 1: Default is Singular Value Decomposition (SVD) of a matrix.
+                 #  NOTE 2: Function permits no other argument besides default "svd".
+                 
+                 dim = 1, # Number of dimensions to be fitted by the model (from most- to least-explanatory).
+                 #  [BETTER DESCRIPTION NEEDED]
+                 
                  tol = 1e-6, # TOL = convergence tolerance parameter.
-                 # DESCRIPTION: criteria for iteration termination. Iterations terminate
-                 #   if difference between current & prior iteration < `TOL` value.
-                 # [VERIFICATION CHECK NEEDED] (though I'm pretty sure this is right)
-                 BIC = FALSE # (??BIC = Bayesian Information Criterion??)
-                 # Very unsure on this. This argument `BIC` apparently doesn't do anything
-                 #   in the function besides appearing as an element in the `output` list.
-                 # [VERIFICATION CHECK NEEDED]
+                 #  DESCRIPTION: criteria for iteration termination. 
+                 #    Iterations terminate if difference between current & prior iteration are less than `tol` value.
+                 
+                 BIC = FALSE # INOPERABLE. Bayesian Information Criterion (?)
 ) {
 
   # Sets `bic.sort` to `NULL` if the `BIC` argument equals `FALSE`, which sets the "bic" element of the `output` list to `NULL`
@@ -87,17 +84,17 @@ md2s <- function( # List of arguments and descriptions below:
   n <- nrow(X)
 
   # Creates three `Z` column vectors of 1s with length = number of rows in X.
-  #   (???) Correspond to the shared (Z_S) & idiosyncratic (Z_{(M)}) subspaces.
+  #   Correspond to the shared (Z_S) & idiosyncratic (Z_{(M)}) subspaces.
   #     (from paper): Z_S contains latent locations in the shared subspace in columns for each `dim` dimensions (in this case, 1).
   #     (from paper): Z_{(M)} contains latent locations in the idiosyncratic subspace for `dim` latent dimensions (in this case, 1).
   ZX.mat <- Zy.mat <- Z.mat <- as.matrix(rep(1, n))
 
 
-  # Creates one (row?) vector of 1s with length = K_1 (i.e., `ncol(X)`).
+  # Creates one vector of 1s with length = $K_1$, the number of covariates in first matrix of realized outcomes $X$ (i.e., `ncol(X)`).
   #   (from paper): W_{(M)} is matrix of shared factors for the shares subspace for the dataset Y_{(M)}.
   wXs.mat <- wX.mat <- rep(1, ncol(X))
 
-  # Creates one (row?) vector of 1s with length = K_2 (i.e., `ncol(y)`).
+  # Creates one vector of 1s with length = $K_2$, the number of covariates in second matrix of realized outcomes $y$ (i.e., `ncol(y)`).
   #   (from paper): W_{(M)} is matrix of shared factors for the shared subspace for the dataset Y_{(M)}.
   wys.mat <- wy.mat <- rep(1, ncol(y))
 
@@ -110,11 +107,9 @@ md2s <- function( # List of arguments and descriptions below:
   proportionX <- lz <- lz.X <- lz.y <- NULL
 
   # Double-center `X1` and `y1`:
-  #   "we preprocess the matrices by double-centering them, so that the row-mean,
-  #   column-mean, and grand mean is zero" (pg. 216 of paper)
-  # BACKGROUND: the `make.int` function is defined far below.
-  # `make.int` standardizes the rows (columns) of a matrix such that each
-  #   row (column) of the matrix has the same standard deviation & mean.
+  #   "we preprocess the matrices by double-centering them, so that the row-mean, column-mean, and grand mean is zero" (pg. 216 of paper).
+  #   BACKGROUND: the `make.int` functio
+  # `make.int` standardizes the rows (columns) of a matrix such that each row (column) of the matrix has the same standard deviation & mean.
   X1 <- X - make.int(X)
   y1 <- y - make.int(y)
 
