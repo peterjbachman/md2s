@@ -43,3 +43,6 @@ vignettes/*.pdf
 
 # Add Readme files when compiling the rmd
 README_files/
+
+# Add output folder
+output/
