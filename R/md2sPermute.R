@@ -154,3 +154,4 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
   }
   
 }
+
