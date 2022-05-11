@@ -13,7 +13,8 @@ md2sPermute(
   nperm,
   nboot,
   fpath = ".",
-  sim = TRUE
+  sim = TRUE,
+  d = 5
 )
 }
 \arguments{

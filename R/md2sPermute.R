@@ -20,7 +20,9 @@
 #' \item{nperm}{Number of permutations done}
 #' \item{nboot}{Number of bootstraps done}
 #' \item{fpath}{Designated file path for the result}
-#'
+#' 
+#' 
+#' 
 #' @author Cecilia Y. Sui and Evan E. Jo: \email{c.sui@@wustl.edu} \email{ejo@wustl.edu}
 #' @seealso [md2s::md2s()]
 #' @rdname md2sPermute
@@ -38,7 +40,7 @@
 #'
 #'
 #' @export
-md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpath = ".", sim = TRUE) {
+md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpath = ".", sim = TRUE, d = 5) {
   ## Generate Data
   results.all <- NULL
   for (j in 1:nsims) {
@@ -87,7 +89,7 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
       results <- foreach::foreach(i = 1:nperm, .packages = "MASS", "parallel") %dopar% {
         X1.perm <- sample.mat(sample.mat(X1))
         y1.perm <- sample.mat(sample.mat(y1))
-        b1.perm <- md2s(X = X1.perm, y = y1.perm, dim = 5)
+        b1.perm <- md2s(X = X1.perm, y = y1.perm, dim = d)
         out <- list(
           "lz" = t(as.matrix(b1.perm$lz)),
           "lz.X" = t(as.matrix(b1.perm$lz.X)),
@@ -111,7 +113,7 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
       lz.y.run2 <- do.call("rbind", lz.y.run)
 
       pz1 <- pz2 <- pz2.y <- pz2.X <- NULL
-      dims <- 5
+      dims <- d
 
       for (i in 1:dims) {
         pz2[i] <- mean(b1$lz[i] < lz.run2[, i])
