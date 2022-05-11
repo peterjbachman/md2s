@@ -69,6 +69,7 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
         y1 <- zs.true %*% dw.z %*% t(bsy.true) + zy.true %*% dw.y %*% t(by.true) + 2 * matrix(stats::rnorm(n * ky), nrow = n)
       }
       
+
       # Notice here b1 is a MD2S obejct #
       b1 <- md2s(X = (X1), y = (y1), dim = 5)
 
@@ -80,7 +81,7 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
       cl <- parallel::makeCluster(nt)
 
       # delete ginv if getting errors on this
-      parallel::clusterExport(cl, c("md2s", "irlba", "ginv", "sample.mat",
+      parallel::clusterExport(cl, c("md2s", "irlba", "sample.mat",
                                     "make.int", "fastres", "md2sInner",
                                     "cleanup", "my.norm", "check.cor", "alpha.func"))
       doParallel::registerDoParallel(cl)
@@ -131,7 +132,7 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
       names(results.curr) <- c("N", "kX", "scen2", paste("ps_", 1:5, sep = ""), paste("pX_", 1:5, sep = ""), paste("py_", 1:5, sep = ""))
 
       results.all <- results.curr
-      
+
       # return(results.all)
       ran.name <- paste0(fpath, "output_", round(stats::runif(1), 10) * 1e10, "_permtest.RData")
       save(results.all, file = ran.name)

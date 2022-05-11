@@ -1,4 +1,36 @@
-#I think that this is getting some inner product space. It's using methods to compute solutions to an underdetermined system.
+#'md2sInner
+#'
+#'Determines which method of solution to solve the given system. In md2s, user selects either singular value decomposition or pseudoinverse. 
+#'This function computes each method of solving. First, it runs conditionals to check whether pseudoinverse is appropriate. Then, it runs the method for solution,
+#'solves least squares from the solution, and then computes correlation coefficients between normed data sets. It then runs log likelihood for OLS parameters. 
+#'In essance, if the system is square, solve the system with singular value decomposition. If the system is not square, compute and solve the system with pseudoinverse. 
+#'
+#'
+#'@param X0 double centered matrix of X from md2s passed into md2sinner
+#'@param y0 double centered matrix of X from md2s passed into md2sinner
+#'@param X.c.0 empty matrix of covariates in shared space
+#'@param X.X.0 empty matrix of covariates in X space, alone not shared with that of Y
+#'@param X.y.0 empty matrix of covariates in Y space, alone not shared with that of X
+#'@param init0 option set to singular value decomposition, although pseudoinverse is run if svd is not logical in md2sinner
+#'@param tol0 tolerance param
+#'
+#'@return a list with the following
+#'\item{z}{See md2s documentation}
+#'\item{z.X}{See md2s documentation}
+#'\item{z.y}{See md2s documentation}
+#'\item{w.Xs}{See md2s documentation}
+#'\item{w.ys}{See md2s documentation}
+#'\item{beta.z}{Coefficient from solution.See md2s documentation}
+#'\item{proportionX}{Proportion of X in y. See md2s documentation}
+#'
+#'@author Peter Bachman <bachman.p@wustl.edu>, Patrick Edwards <edwards.p@wustl.edu>, and Zion Little <l.zion@wustl.edu>
+#'
+#'@include md2sInner.R
+
+
+
+
+#I think that this is getting some inner product space. It's using methods to compute solutions to an non-square system.
 md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived from X.
                        y0, # Must be the double-centered/scaled matrix derived from y.
                        X.c.0 = NULL, # covariates associated with shared subspace.
@@ -30,7 +62,7 @@ md2sInner <- function(X0, # Must be the double-centered/scaled matrix derived fr
   #Okay, so I THINK this is getting the generalized inverse
   XXprime <- X %*% t(X)
   yyprime <- y %*% t(y)
-  #If dim of these is non-0--so I think if the system is overdetermined, then find generallized inverse.
+  #If dim of these is non-0--so I think if the system is not square, then find generallized inverse.
   if (length(X.c) > 0) hat.Xc <- MASS::ginv(t(X.c) %*% X.c) %*% t(X.c)
   if (length(X.X) > 0) hat.XX <- MASS::ginv(t(X.X) %*% X.X) %*% t(X.X)
   if (length(X.y) > 0) hat.Xy <- MASS::ginv(t(X.y) %*% X.y) %*% t(X.y)
