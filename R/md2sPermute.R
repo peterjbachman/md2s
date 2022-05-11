@@ -43,7 +43,7 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
   results.all <- NULL
   for (j in 1:nsims) {
     for (kX in c(kX.num)) {
-      
+
       if (sim) {
       ## -------------------------
       ## Create z.s y z2.s
@@ -53,20 +53,20 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
         zs.true <- cbind(z1, z2)
         zX.true <- cbind(stats::rnorm(n), stats::rnorm(n), stats::rnorm(n))
         zy.true <- cbind(stats::rnorm(n), stats::rnorm(n))
-  
+
         bsX.true <- cbind(stats::rnorm(kX), stats::rnorm(kX))
         bX.true <- cbind(stats::rnorm(kX), stats::rnorm(kX), stats::rnorm(kX))
         bsy.true <- cbind(stats::rnorm(ky), stats::rnorm(ky))
         by.true <- cbind(stats::rnorm(ky), stats::rnorm(ky))
-  
+
         dw.z <- diag(c(2, 1))
         dw.y <- diag(c(4, 2))
         dw.X <- diag(c(4, 2, 2))
-  
+
         X1 <- zs.true %*% dw.z %*% t(bsX.true) + zX.true %*% dw.X %*% t(bX.true) + 2 * matrix(stats::rnorm(n * kX), nrow = n)
         y1 <- zs.true %*% dw.z %*% t(bsy.true) + zy.true %*% dw.y %*% t(by.true) + 2 * matrix(stats::rnorm(n * ky), nrow = n)
       }
-      
+
 
       # Notice here b1 is a MD2S obejct #
       b1 <- md2s(X = (X1), y = (y1), dim = 5)
@@ -136,9 +136,9 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
       save(results.all, file = ran.name)
     }
   }
-  
-  
-  ## Aggregate results 
+
+
+  ## Aggregate results
   files.all <- list.files(fpath, pattern = "output_")
   if(!exists("out.all")){
     out.all<-NULL
@@ -152,5 +152,5 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
   for(i in files.all) {
     file.remove(paste(fpath, i, sep = ""))
   }
-  
+
 }
