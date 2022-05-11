@@ -3,8 +3,8 @@
 #' Multi-Dataset Multidimensional Scaling
 #'
 #'
-#' @param X First matrix of realized outcomes $(m = 1)$ for $N$ observations and $K_1$ covariates; dimensions $N \times K_1$.
-#' @param y Second matrix of realized outcomes $(m = 2)$ for $N$ observations and $K_2$ covariates; dimensions $N \times K_1$
+#' @param X First matrix of realized outcomes \eqn{m = 1} for \eqn{N} observations and \eqn{K_1} covariates; dimensions \eqn{N \times K_1}.
+#' @param y Second matrix of realized outcomes \eqn{m = 2} for \eqn{N} observations and \eqn{K_2} covariates; dimensions \eqn{N \times K_1}
 #' @param X.s Optional matrix of covariates for estimating scaled locations in the shared subspace.
 #' @param X.X Optional matrix of covariates for estimating scaled locations in the idiosyncratic subspace of `X`.
 #' @param X.y Optional matrix of covariates for estimating scaled locations in the idiosyncratic subspace of `y`.
@@ -42,35 +42,35 @@ md2s <- function( # List of arguments and descriptions below:
                  #  DESCRIPTION: first dataset of realized outcomes for `N` observations and `K_1` covariates.
                  #    Note: $K_1$ & $K_2$ can differ.
                  #  EXAMPLE: roll-call votes for `N` legislators with `K_1` covariates.
-                 
+
                  y, # $N \mult K_2$ dataset $m = 2$ of realized outcomes.
                  #  DESCRIPTION: second dataset of realized outcomes for `N` observations and `K_2` covariates.
                  #    Note: `K_1` & `K_2` can differ.
                  #  EXAMPLE: floor speech text for `N` legislators with `K_2` covariates.
-                 
+
                  X.s = NULL, # Optional covariates for estimating scaled locations in shared subspace.
                  #  DESCRIPTION: dataset of covariates that explain observations' scaled locations in shared subspace.
                  #  EXAMPLE: covariates that explain legislators' general ideological placements.
-                 
+
                  X.X = NULL, # Optional covariates for estimating scaled locations in idiosyncratic subspace of X.
                  #  DESCRIPTION: dataset of covariates that explain observations' scaled locations in idiosyncratic subspace of X.
                  #  EXAMPLE: covariates that explain legislators' ideological placements as determined by roll call votes.
-                 
+
                  X.y = NULL, # Optional covariates for estimating scaled locations in idiosyncratic subspace of y.
                  #  DESCRIPTION: dataset of covariates that explain observations' scaled locations in idiosyncratic subspace of y.
                  #  EXAMPLE: covariates that explain legislators' ideological placements as determined by floor speech text.
-                 
+
                  init = "svd", # INOPERABLE. Matrix initialization method.
                  #  NOTE 1: Default is Singular Value Decomposition (SVD) of a matrix.
                  #  NOTE 2: Function permits no other argument besides default "svd".
-                 
+
                  dim = 1, # Number of dimensions to be fitted by the model (from most- to least-explanatory).
                  #  [BETTER DESCRIPTION NEEDED]
-                 
+
                  tol = 1e-6, # TOL = convergence tolerance parameter.
-                 #  DESCRIPTION: criteria for iteration termination. 
+                 #  DESCRIPTION: criteria for iteration termination.
                  #    Iterations terminate if difference between current & prior iteration are less than `tol` value.
-                 
+
                  BIC = FALSE # INOPERABLE. Bayesian Information Criterion (?)
 ) {
 

@@ -17,23 +17,23 @@ md2s(
 )
 }
 \arguments{
-\item{X}{TODO}
+\item{X}{First matrix of realized outcomes \eqn{m = 1} for \eqn{N} observations and \eqn{K_1} covariates; dimensions \eqn{N \times K_1}.}
 
-\item{y}{TODO}
+\item{y}{Second matrix of realized outcomes \eqn{m = 2} for \eqn{N} observations and \eqn{K_2} covariates; dimensions \eqn{N \times K_1}}
 
-\item{X.s}{TODO}
+\item{X.s}{Optional matrix of covariates for estimating scaled locations in the shared subspace.}
 
-\item{X.X}{TODO}
+\item{X.X}{Optional matrix of covariates for estimating scaled locations in the idiosyncratic subspace of \code{X}.}
 
-\item{X.y}{TODO}
+\item{X.y}{Optional matrix of covariates for estimating scaled locations in the idiosyncratic subspace of \code{y}.}
 
-\item{init}{TODO}
+\item{init}{INOPERABLE. Matrix initialization method.}
 
-\item{dim}{Number of dimensions}
+\item{dim}{Number of dimensions to be estimated by the model (from most- to least-explanatory).}
 
-\item{tol}{TODO}
+\item{tol}{Iteration tolerance threshold. Criteria for termination of iteration.}
 
-\item{BIC}{TODO}
+\item{BIC}{INOPERABLE. Bayesian Information Criterion.}
 }
 \value{
 An object containing:
