@@ -42,6 +42,10 @@ Permutation Test
 md2sPermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)
 }
 
+
+
+
+
 }
 \seealso{
 \code{\link[=md2s]{md2s()}}

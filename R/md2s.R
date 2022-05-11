@@ -31,6 +31,10 @@
 #' md2s()
 #' }
 #'
+#'
+#'
+#'
+#
 #' @export
 
 md2s <- function( # List of arguments and descriptions below:
@@ -302,3 +306,5 @@ md2s <- function( # List of arguments and descriptions below:
 
   return(output)
 }
+
+

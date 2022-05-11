@@ -33,29 +33,24 @@
 #' md2sPermute(kX.num = 100, n = 50, ky = 40, nsims = 200, nperm = 200, nboot = 200)
 #' }
 #'
+#'
+#'
+#'
+#'
+
 #' @export
 md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
-  if (exists("out.all")) {
-    rm(out.all)
+  
+  make.int <- function(X) {
+    int1 <- rep(1, nrow(X)) %*% t(colMeans(X))
+    int2 <- rowMeans(X) %*% t(rep(1, ncol(X)))
+    int1 + int2 - mean(int1 + int2) + mean(X)
   }
-
-  kX.num <- 100
-  n <- 50
-  ky <- 40
-  ## the line below comes from Run.R for the simulation
-  ## Number of simulations; permutations; and bootstap samples
-  nsims <- nperm <- nboot <- 10 # originally 200, too long to run :)
-
-
-  ##  tmp code setup
-  # kX = 100
-  # j = 1
-
+  
   ## Generate Data
   results.all <- NULL
   for (j in 1:nsims) {
     for (kX in c(kX.num)) {
-
       ## -------------------------
       ## Create z.s y z2.s
       ## -------------------------
@@ -89,12 +84,14 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
 
       nt <- parallel::detectCores()
       cl <- parallel::makeCluster(nt)
+      
+      clusterExport(cl, c("md2s", "irlba", "ginv", "sample.mat", "make.int", "fastres", "md2sInner", "cleanup", "my.norm", "check.cor"))
       doParallel::registerDoParallel(cl)
+      out <- Matrix()
 
-      results <- foreach::foreach(i = 1:nperm, .export = c("md2s", "ginv", "irlba")) %dopar% {
+      results <- foreach::foreach(i = 1:nperm, .packages = "MASS") %dopar% {
         X1.perm <- sample.mat(sample.mat(X1))
         y1.perm <- sample.mat(sample.mat(y1))
-
         b1.perm <- md2s(X = X1.perm, y = y1.perm, dim = 5)
         out <- list(
           "lz" = t(as.matrix(b1.perm$lz)),
@@ -103,7 +100,8 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
         )
         out
       }
-
+      
+      parallel::registerDoSEQ()
       parallel::stopCluster(cl)
 
       lz.run <- lz.X.run <- lz.y.run <- list()
@@ -130,9 +128,9 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
       pvals.X <- pz2.X
       pvals.y <- pz2.y
 
-      pvals.s
-      pvals.X
-      pvals.y
+      # pvals.s
+      # pvals.X
+      # pvals.y
 
       scenario2 <- 1
       results.curr <- c(n, kX, scenario2, pvals.s, pvals.X, pvals.y)
@@ -140,9 +138,10 @@ md2sPermute <- function(kX.num, n, ky, nsims, nperm, nboot) {
       names(results.curr) <- c("N", "kX", "scen2", paste("ps_", 1:5, sep = ""), paste("pX_", 1:5, sep = ""), paste("py_", 1:5, sep = ""))
 
       results.all <- results.curr
-
-      ran.name <- paste0("./results_Panel_A/output_", round(stats::runif(1), 10) * 1e10, "_Panel_A.RData")
-      save(results.all, file = ran.name)
+      
+      return(results.all)
+      # ran.name <- paste0("./results_Panel_A/output_", round(stats::runif(1), 10) * 1e10, "_Panel_A.RData")
+      # save(results.all, file = ran.name)
     }
   }
 }
