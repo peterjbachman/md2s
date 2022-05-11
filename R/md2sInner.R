@@ -15,15 +15,17 @@
 #'@param tol0 tolerance param
 #'
 #'@return a list with the following
-#'\item{z} 
-#'\item{z.X}
-#'\item{z.y}
-#'\item{w.Xs}
-#'\item{w.ys}
-#'\item{beta.z}
-#'\item{proportionX}
+#'\item{z}{See md2s documentation}
+#'\item{z.X}{See md2s documentation}
+#'\item{z.y}{See md2s documentation}
+#'\item{w.Xs}{See md2s documentation}
+#'\item{w.ys}{See md2s documentation}
+#'\item{beta.z}{Coefficient from solution.See md2s documentation}
+#'\item{proportionX}{Proportion of X in y. See md2s documentation}
 #'
+#'@author Peter Bachman <bachman.p@wustl.edu>, Patrick Edwards <edwards.p@wustl.edu>, and Zion Little <l.zion@wustl.edu>
 #'
+#'@include md2sInner.R
 
 
 
