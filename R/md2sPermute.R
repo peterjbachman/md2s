@@ -146,23 +146,10 @@ md2sPermute <- function(kX.num = 100, n = 50, ky = 40, nsims, nperm, nboot, fpat
       out.all<-rbind(out.all,results.all)
     }
   }
-  save(out.all, file = paste0(fpath, "outall_Panel_A.RData"))
+  save(out.all, file = paste0(fpath, "outall.RData"))
+
+  for(i in files.all) {
+    file.remove(paste(fpath, i, sep = ""))
+  }
   
 }
-
-
-# # ## Aggregate results:
-# files.all<-list.files('../data/01_Main_Results/Figure_3/results_Panel_A/', pattern = "output_")
-# if(!exists("out.all")){
-#   out.all<-NULL
-#   for(i in files.all) {
-#     load(paste('../data/01_Main_Results/Figure_3/results_Panel_A/', i, sep = ""))
-#     out.all<-rbind(out.all,results.all)
-#   }
-# }
-
-# save(out.all, file = '../data/01_Main_Results/Figure_3/results_Panel_A/outall_Panel_A.RData')
-# 
-# for(i in files.all) {
-#   file.remove(paste("../data/01_Main_Results/Figure_3/results_Panel_A/", i, sep = ""))
-# }
