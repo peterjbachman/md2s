@@ -11,7 +11,7 @@ md2sInner(
   X.X.0 = NULL,
   X.y.0 = NULL,
   init0 = "svd",
-  tol0 = tol
+  tol0 = 1e-06
 )
 }
 \arguments{
@@ -31,17 +31,20 @@ md2sInner(
 }
 \value{
 a list with the following
-\item{z}
-\item{z.X}
-\item{z.y}
-\item{w.Xs}
-\item{w.ys}
-\item{beta.z}
-\item{proportionX}
+\item{z}{See md2s documentation}
+\item{z.X}{See md2s documentation}
+\item{z.y}{See md2s documentation}
+\item{w.Xs}{See md2s documentation}
+\item{w.ys}{See md2s documentation}
+\item{beta.z}{Coefficient from solution.See md2s documentation}
+\item{proportionX}{Proportion of X in y. See md2s documentation}
 }
 \description{
 Determines which method of solution to solve the given system. In md2s, user selects either singular value decomposition or pseudoinverse.
 This function computes each method of solving. First, it runs conditionals to check whether pseudoinverse is appropriate. Then, it runs the method for solution,
 solves least squares from the solution, and then computes correlation coefficients between normed data sets. It then runs log likelihood for OLS parameters.
 In essance, if the system is square, solve the system with singular value decomposition. If the system is not square, compute and solve the system with pseudoinverse.
+}
+\author{
+Peter Bachman \href{mailto:bachman.p@wustl.edu}{bachman.p@wustl.edu}, Patrick Edwards \href{mailto:edwards.p@wustl.edu}{edwards.p@wustl.edu}, and Zion Little \href{mailto:l.zion@wustl.edu}{l.zion@wustl.edu}
 }
